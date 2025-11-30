@@ -9,7 +9,7 @@ import OTPVerifyScreen from '../screens/auth/OTPVerifyScreen';
 import ProfileSetupScreen from '../screens/auth/ProfileSetupScreen';
 
 // Main Screens
-import HomeScreen from '../screens/HomeScreen';
+import BottomTabNavigator from './BottomTabNavigator';
 
 const Stack = createStackNavigator();
 
@@ -31,7 +31,7 @@ const AppNavigator = () => {
                     <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
                 ) : (
                     // Main App
-                    <Stack.Screen name="Main" component={HomeScreen} />
+                    <Stack.Screen name="Main" component={BottomTabNavigator} />
                 )}
             </Stack.Navigator>
         </NavigationContainer>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     View,
     Text,
-    TextInput,
     StyleSheet,
     TouchableOpacity,
     ScrollView,
@@ -13,6 +12,8 @@ import CategorySection from '../components/CategorySection';
 import mockProducts from '../data/mockProducts';
 import useCartStore from '../stores/cartStore';
 import useAuthStore from '../stores/authStore';
+import CartBubble from '../components/ViewCart';
+import AnimatedSearchBar from '../components/AnimatedSearchBar';
 
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -105,19 +106,20 @@ const HomeScreen = ({ navigation }) => {
                 </View>
 
                 {/* Search Bar */}
-                <View style={styles.searchContainer}>
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search for products..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        onSubmitEditing={handleSearch}
-                        returnKeyType="search"
-                    />
-                    <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                        <Text style={styles.searchIcon}>🔍</Text>
-                    </TouchableOpacity>
-                </View>
+                <AnimatedSearchBar
+                    rotatingTexts={[
+                        'puja samagri',
+                        'bracelets',
+                        'pendants',
+                        'organic honey',
+                        'incense sticks',
+                        'rudraksha mala',
+                    ]}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    onSubmit={handleSearch}
+                    rotationInterval={2000}
+                />
             </View>
 
             {/* Content */}
@@ -189,23 +191,9 @@ const HomeScreen = ({ navigation }) => {
             </ScrollView>
 
             {/* View Cart Bar - Shows when cart has items */}
-            {totalItems > 0 && (
-                <TouchableOpacity
-                    style={styles.viewCartBar}
-                    onPress={handleViewCart}>
-                    <View style={styles.viewCartContent}>
-                        <View style={styles.cartIconContainer}>
-                            <Text style={styles.cartEmoji}>🛒</Text>
-                            <Text style={styles.productIcons}>📦</Text>
-                        </View>
-                        <View style={styles.cartTextContainer}>
-                            <Text style={styles.viewCartText}>View cart</Text>
-                            <Text style={styles.cartItemCount}>{totalItems} items</Text>
-                        </View>
-                        <Text style={styles.viewCartArrow}>›</Text>
-                    </View>
-                </TouchableOpacity>
-            )}
+            {/* {totalItems > 0 && (
+                <CartBubble />
+            )} */}
         </View>
     );
 };
@@ -261,26 +249,6 @@ const styles = StyleSheet.create({
         color: COLORS.TEXT_PRIMARY,
         fontSize: SIZES.FONT_XS,
         fontWeight: 'bold',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        backgroundColor: COLORS.WHITE,
-        borderRadius: SIZES.RADIUS_MD,
-        overflow: 'hidden',
-    },
-    searchInput: {
-        flex: 1,
-        paddingHorizontal: SIZES.PADDING_LG,
-        paddingVertical: SIZES.PADDING_MD,
-        fontSize: SIZES.FONT_MD,
-    },
-    searchButton: {
-        paddingHorizontal: SIZES.PADDING_LG,
-        justifyContent: 'center',
-        backgroundColor: COLORS.ACCENT,
-    },
-    searchIcon: {
-        fontSize: 20,
     },
     content: {
         flex: 1,
