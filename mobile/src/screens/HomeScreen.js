@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     View,
     Text,
@@ -13,11 +13,49 @@ import mockProducts from '../data/mockProducts';
 import useCartStore from '../stores/cartStore';
 import useAuthStore from '../stores/authStore';
 import CartBubble from '../components/ViewCart';
-import AnimatedSearchBar from '../components/AnimatedSearchBar';
+import AppHeader from '../components/AppHeader';
+import AppFooter from '../components/AppFooter';
+import useUIStore from '../stores/uiStore';
+
+import ProductAdvertiser from '../components/ProductAdvertiser';
 
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [wishlistedItems, setWishlistedItems] = useState({});
+    const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
+    const lastContentOffset = useRef(0);
+    const isTabBarVisible = useRef(true);
+
+    // Mock Data for Advertiser
+    const AD_DATA = [
+        {
+            id: '1',
+            title: 'Cheese Mania',
+            subtitle: 'Explore a wide range of cheese and breads',
+            poweredBy: 'Dlecta',
+            backgroundColor: '#FFD54F', // Light Amber
+            buttonText: 'Shop now',
+            productImage: 'https://png.pngtree.com/png-clipart/20230427/original/pngtree-cheese-food-png-image_9113674.png', // Placeholder cheese
+        },
+        {
+            id: '2',
+            title: 'Healthy Breakfast',
+            subtitle: 'Start your day with organic honey & oats',
+            poweredBy: 'Dabur',
+            backgroundColor: '#A5D6A7', // Light Green
+            buttonText: 'Explore',
+            productImage: 'https://png.pngtree.com/png-clipart/20231124/original/pngtree-honey-jar-with-dipper-isolated-on-transparent-background-png-image_13709325.png', // Placeholder honey
+        },
+        {
+            id: '3',
+            title: 'Puja Essentials',
+            subtitle: 'Premium samagri for your daily rituals',
+            poweredBy: 'Guruji',
+            backgroundColor: '#FFCC80', // Light Orange
+            buttonText: 'Order now',
+            productImage: 'https://png.pngtree.com/png-clipart/20230928/original/pngtree-diya-lamp-oil-lamp-png-image_13009589.png', // Placeholder diya
+        },
+    ];
 
     const user = useAuthStore(state => state.user);
     const cartItems = useCartStore(state => state.items);
@@ -25,6 +63,26 @@ const HomeScreen = ({ navigation }) => {
     const updateQuantity = useCartStore(state => state.updateQuantity);
     const totalItems = useCartStore(state => state.totalItems);
     const totalAmount = useCartStore(state => state.totalAmount);
+
+    const handleScroll = (event) => {
+        const currentOffset = event.nativeEvent.contentOffset.y;
+        const diff = currentOffset - lastContentOffset.current;
+
+        // Ignore small scrolls (bounce effect)
+        if (Math.abs(diff) < 3) return;
+
+        if (diff > 0 && isTabBarVisible.current && currentOffset > 50) {
+            // Scrolling down & tab bar is visible -> Hide it
+            setTabBarVisible(false);
+            isTabBarVisible.current = false;
+        } else if (diff < 0 && !isTabBarVisible.current) {
+            // Scrolling up & tab bar is hidden -> Show it
+            setTabBarVisible(true);
+            isTabBarVisible.current = true;
+        }
+
+        lastContentOffset.current = currentOffset;
+    };
 
     const handleSearch = () => {
         // TODO: Implement search functionality
@@ -87,46 +145,25 @@ const HomeScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
-                <View style={styles.headerTop}>
-                    <View>
-                        <Text style={styles.headerTitle}>Guruji Samagri Store</Text>
-                        <Text style={styles.headerSubtitle}>Hi, {user?.name || 'Test User'}!</Text>
-                    </View>
-                    <TouchableOpacity
-                        style={styles.cartButton}
-                        onPress={() => Alert.alert('Cart', 'Cart feature coming soon')}>
-                        <Text style={styles.cartIcon}>🛒</Text>
-                        {totalItems > 0 && (
-                            <View style={styles.badge}>
-                                <Text style={styles.badgeText}>{totalItems}</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                </View>
-
-                {/* Search Bar */}
-                <AnimatedSearchBar
-                    rotatingTexts={[
-                        'puja samagri',
-                        'bracelets',
-                        'pendants',
-                        'organic honey',
-                        'incense sticks',
-                        'rudraksha mala',
-                    ]}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    onSubmit={handleSearch}
-                    rotationInterval={2000}
-                />
-            </View>
+            <AppHeader
+                title="Guruji Samagri Store"
+                showSearch={true}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSearchSubmit={handleSearch}
+                onSearchPress={() => navigation.navigate('Search')}
+            />
 
             {/* Content */}
             <ScrollView
                 style={styles.content}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}>
+                contentContainerStyle={styles.scrollContent}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}>
+
+                {/* Product Advertiser Carousel */}
+                <ProductAdvertiser ads={AD_DATA} />
 
                 {/* Glow up starts right here - Sunscreen */}
                 <CategorySection
@@ -186,14 +223,17 @@ const HomeScreen = ({ navigation }) => {
                     onToggleWishlist={handleToggleWishlist}
                 />
 
+                {/* Footer */}
+                <AppFooter />
+
                 {/* Bottom Spacing for Sticky Bar */}
                 <View style={styles.bottomSpacer} />
             </ScrollView>
 
             {/* View Cart Bar - Shows when cart has items */}
-            {/* {totalItems > 0 && (
+            {totalItems > 0 && (
                 <CartBubble />
-            )} */}
+            )}
         </View>
     );
 };
@@ -202,53 +242,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.BACKGROUND,
-    },
-    header: {
-        backgroundColor: COLORS.PRIMARY,
-        paddingHorizontal: SIZES.PADDING_LG,
-        paddingTop: SIZES.PADDING_XXL,
-        paddingBottom: SIZES.PADDING_LG,
-        borderBottomLeftRadius: SIZES.RADIUS_LG,
-        borderBottomRightRadius: SIZES.RADIUS_LG,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: SIZES.PADDING_MD,
-    },
-    headerTitle: {
-        fontSize: SIZES.FONT_XL,
-        fontWeight: 'bold',
-        color: COLORS.WHITE,
-    },
-    headerSubtitle: {
-        fontSize: SIZES.FONT_MD,
-        color: COLORS.WHITE,
-        opacity: 0.9,
-    },
-    cartButton: {
-        position: 'relative',
-    },
-    cartIcon: {
-        fontSize: 28,
-    },
-    badge: {
-        position: 'absolute',
-        top: -5,
-        right: -5,
-        backgroundColor: COLORS.ACCENT,
-        borderRadius: SIZES.RADIUS_ROUND,
-        minWidth: 20,
-        height: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 4,
-    },
-    badgeText: {
-        color: COLORS.TEXT_PRIMARY,
-        fontSize: SIZES.FONT_XS,
-        fontWeight: 'bold',
     },
     content: {
         flex: 1,

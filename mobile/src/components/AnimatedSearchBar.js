@@ -19,6 +19,7 @@ import { COLORS, SIZES } from '../constants/colors';
  * @param {string} value - Current search query value
  * @param {function} onChangeText - Callback when search text changes
  * @param {function} onSubmit - Callback when search is submitted
+ * @param {function} onPress - Callback when search bar is pressed (for navigation)
  * @param {object} containerStyle - Additional styles for the container
  */
 const AnimatedSearchBar = ({
@@ -27,6 +28,7 @@ const AnimatedSearchBar = ({
     value = '',
     onChangeText,
     onSubmit,
+    onPress,
     containerStyle,
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -134,21 +136,28 @@ const AnimatedSearchBar = ({
             )}
 
             {/* Search Input */}
-            <TextInput
-                style={styles.searchInput}
-                value={value}
-                onChangeText={onChangeText}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onSubmitEditing={handleSearch}
-                returnKeyType="search"
-                // Empty placeholder since we're using custom placeholder
-                placeholder=""
-            />
+            <TouchableOpacity
+                style={styles.inputWrapper}
+                activeOpacity={onPress ? 0.8 : 1}
+                onPress={onPress}
+                disabled={!onPress}>
+                <TextInput
+                    style={styles.searchInput}
+                    value={value}
+                    onChangeText={onChangeText}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    onSubmitEditing={handleSearch}
+                    returnKeyType="search"
+                    editable={!onPress}
+                    // Empty placeholder since we're using custom placeholder
+                    placeholder=""
+                />
+            </TouchableOpacity>
 
             {/* Search Button */}
-            <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                <Text style={styles.searchIcon}>🔍</Text>
+            <TouchableOpacity style={styles.searchButton} onPress={onPress || handleSearch}>
+                <Text style={styles.searchIcon}>⌕</Text>
             </TouchableOpacity>
         </View>
     );
@@ -158,9 +167,14 @@ const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
         backgroundColor: COLORS.WHITE,
-        borderRadius: SIZES.RADIUS_MD,
+        borderRadius: SIZES.RADIUS_LG,
         overflow: 'hidden',
         position: 'relative',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
     },
     placeholderContainer: {
         position: 'absolute',
@@ -176,7 +190,7 @@ const styles = StyleSheet.create({
         color: '#999',
     },
     animatedTextContainer: {
-        height: 20, // Fixed height to clip overflow
+        height: 20,
         overflow: 'hidden',
         justifyContent: 'center',
     },
@@ -189,21 +203,27 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
     },
+    inputWrapper: {
+        flex: 1,
+    },
     searchInput: {
         flex: 1,
         paddingHorizontal: SIZES.PADDING_LG,
-        paddingVertical: SIZES.PADDING_MD,
+        paddingVertical: SIZES.PADDING_MD + 2,
         fontSize: SIZES.FONT_MD,
         color: COLORS.TEXT_PRIMARY,
         zIndex: 2,
     },
     searchButton: {
-        paddingHorizontal: SIZES.PADDING_LG,
+        width: 50,
         justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: COLORS.ACCENT,
     },
     searchIcon: {
-        fontSize: 20,
+        fontSize: 24,
+        color: COLORS.TEXT_PRIMARY,
+        fontWeight: '600',
     },
 });
 

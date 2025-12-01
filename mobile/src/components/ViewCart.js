@@ -10,19 +10,25 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import useUIStore from "../stores/uiStore";
+
 const CartBubble = ({
     visible = true,
     itemCount = 0,
     totalText = "View cart",
     subText = "0 items",
-    thumbnails = ['https://picsum.photos/id/237/200/300', 'https://picsum.photos/seed/picsum/200/300', 'https://picsum.photos/id/237/200/300'], // array of image URIs (show up to 3)
+    thumbnails = ['https://picsum.photos/id/237/200/300', 'https://picsum.photos/seed/picsum/200/300', 'https://picsum.photos/id/237/200/300'],
     onPress = () => { },
 }) => {
     const insets = useSafeAreaInsets();
+    const isTabBarVisible = useUIStore(state => state.isTabBarVisible);
+
+    // Animation values
     const translateY = useRef(new Animated.Value(0)).current;
+    const positionY = useRef(new Animated.Value(0)).current;
 
     React.useEffect(() => {
-        // simple entrance animation
+        // Entrance/Exit animation
         Animated.spring(translateY, {
             toValue: visible ? 0 : 140,
             useNativeDriver: true,
@@ -30,6 +36,17 @@ const CartBubble = ({
             stiffness: 120,
         }).start();
     }, [visible, translateY]);
+
+    React.useEffect(() => {
+        // Position animation based on Tab Bar visibility
+        // If tab bar is visible, move up by ~60px (tab bar height)
+        // If tab bar is hidden, move down to 0 (default bottom position)
+        Animated.timing(positionY, {
+            toValue: isTabBarVisible ? -60 : 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, [isTabBarVisible, positionY]);
 
     const thumbToShow = thumbnails.slice(0, 3);
 
@@ -39,8 +56,10 @@ const CartBubble = ({
             style={[
                 styles.container,
                 {
-                    transform: [{ translateY }],
-                    bottom: insets.bottom + 16, // safe area + margin
+                    transform: [
+                        { translateY: Animated.add(translateY, positionY) }
+                    ],
+                    bottom: insets.bottom + 16,
                 },
             ]}
         >
