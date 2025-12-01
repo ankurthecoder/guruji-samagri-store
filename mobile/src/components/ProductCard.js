@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
 
-const ProductCard = ({ product, onAddToCart, onToggleWishlist }) => {
+const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModal }) => {
     const {
         name,
         image,
@@ -133,14 +133,22 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist }) => {
                 ) : (
                     <TouchableOpacity
                         style={styles.addButton}
-                        onPress={() => onAddToCart?.(product, 1)}>
-                        <Text style={styles.addButtonText}>ADD</Text>
+                        onPress={() => {
+                            if (product.variants && product.variants.length > 1) {
+                                onOpenVariantModal?.(product);
+                            } else {
+                                onAddToCart?.(product, 1);
+                            }
+                        }}>
+                        <View style={styles.addButtonContent}>
+                            <Text style={styles.addButtonText}>ADD</Text>
+                            {product.variants && product.variants.length > 1 && (
+                                <Text style={styles.variantOptionsText}>
+                                    {product.variants.length} options
+                                </Text>
+                            )}
+                        </View>
                     </TouchableOpacity>
-                )}
-
-                {/* Variant Count */}
-                {variantCount > 1 && (
-                    <Text style={styles.variantCount}>{variantCount} options</Text>
                 )}
 
                 {/* Stock Warning */}
@@ -300,7 +308,12 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: SIZES.RADIUS_SM,
         alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 6,
+    },
+    addButtonContent: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     addButtonText: {
         fontSize: 13,
@@ -339,6 +352,13 @@ const styles = StyleSheet.create({
         color: COLORS.TEXT_SECONDARY,
         textAlign: 'center',
         marginBottom: 4,
+    },
+    variantOptionsText: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#2E7D32',
+        textAlign: 'center',
+        marginTop: 1,
     },
     stockWarning: {
         fontSize: 11,

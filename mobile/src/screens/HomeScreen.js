@@ -15,6 +15,7 @@ import useAuthStore from '../stores/authStore';
 import CartBubble from '../components/ViewCart';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
+import ProductVariantModal from '../components/ProductVariantModal';
 import useUIStore from '../stores/uiStore';
 
 import ProductAdvertiser from '../components/ProductAdvertiser';
@@ -22,6 +23,8 @@ import ProductAdvertiser from '../components/ProductAdvertiser';
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [wishlistedItems, setWishlistedItems] = useState({});
+    const [variantModalVisible, setVariantModalVisible] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
     const lastContentOffset = useRef(0);
     const isTabBarVisible = useRef(true);
@@ -63,6 +66,20 @@ const HomeScreen = ({ navigation }) => {
     const updateQuantity = useCartStore(state => state.updateQuantity);
     const totalItems = useCartStore(state => state.totalItems);
     const totalAmount = useCartStore(state => state.totalAmount);
+
+    const handleOpenVariantModal = (product) => {
+        setSelectedProduct(product);
+        setVariantModalVisible(true);
+    };
+
+    const handleCloseVariantModal = () => {
+        setVariantModalVisible(false);
+        setSelectedProduct(null);
+    };
+
+    const handleAddVariant = (variantProduct) => {
+        handleAddToCart(variantProduct, 1);
+    };
 
     const handleScroll = (event) => {
         const currentOffset = event.nativeEvent.contentOffset.y;
@@ -167,13 +184,14 @@ const HomeScreen = ({ navigation }) => {
 
                 {/* Glow up starts right here - Sunscreen */}
                 <CategorySection
-                    title="Glow up starts right here"
-                    subtitle="Sponsored"
+                    title="Sunscreen Essentials"
+                    subtitle="Protect your skin"
                     products={enrichProducts(mockProducts.sunscreen)}
                     categoryName="Sunscreen"
                     onSeeAll={handleSeeAll}
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
+                    onOpenVariantModal={handleOpenVariantModal}
                 />
 
                 {/* Relax and breathe easy - Masks & Air Purifiers */}
@@ -188,28 +206,31 @@ const HomeScreen = ({ navigation }) => {
                     onSeeAll={handleSeeAll}
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
+                    onOpenVariantModal={handleOpenVariantModal}
                 />
 
                 {/* Sweet and healthy - Honey */}
                 <CategorySection
-                    title="Sweet and healthy"
-                    subtitle="Pure & Natural"
-                    products={enrichProducts(mockProducts.honey)}
-                    categoryName="Honey"
+                    title="Protect & Shield"
+                    subtitle="Face masks"
+                    products={enrichProducts(mockProducts.masks)}
+                    categoryName="Masks"
                     onSeeAll={handleSeeAll}
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
+                    onOpenVariantModal={handleOpenVariantModal}
                 />
 
                 {/* Tea time essentials - Tea */}
                 <CategorySection
-                    title="Tea time essentials"
-                    subtitle="Premium blends"
+                    title="Tea Time Bliss"
+                    subtitle="Premium tea selection"
                     products={enrichProducts(mockProducts.tea)}
-                    categoryName="Green Tea"
+                    categoryName="Tea"
                     onSeeAll={handleSeeAll}
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
+                    onOpenVariantModal={handleOpenVariantModal}
                 />
 
                 {/* Fresh & Radiant - Face Wash */}
@@ -221,6 +242,7 @@ const HomeScreen = ({ navigation }) => {
                     onSeeAll={handleSeeAll}
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
+                    onOpenVariantModal={handleOpenVariantModal}
                 />
 
                 {/* Footer */}
@@ -229,6 +251,14 @@ const HomeScreen = ({ navigation }) => {
                 {/* Bottom Spacing for Sticky Bar */}
                 <View style={styles.bottomSpacer} />
             </ScrollView>
+
+            {/* Product Variant Modal */}
+            <ProductVariantModal
+                visible={variantModalVisible}
+                onClose={handleCloseVariantModal}
+                product={selectedProduct}
+                onAddVariant={handleAddVariant}
+            />
 
             {/* View Cart Bar - Shows when cart has items */}
             {totalItems > 0 && (

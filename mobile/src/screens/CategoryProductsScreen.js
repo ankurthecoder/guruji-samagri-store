@@ -15,6 +15,7 @@ import { COLORS, SIZES } from '../constants/colors';
 import FilterBar from '../components/FilterBar';
 import ProductCard from '../components/ProductCard';
 import SkeletonProductCard from '../components/SkeletonProductCard';
+import ProductVariantModal from '../components/ProductVariantModal';
 import mockProducts from '../data/mockProducts';
 import { getProductsByCategory } from '../data/mockCategories';
 import useCartStore from '../stores/cartStore';
@@ -65,6 +66,8 @@ const CategoryProductsScreen = ({ route, navigation }) => {
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [wishlistedItems, setWishlistedItems] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [variantModalVisible, setVariantModalVisible] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     // Animation state
     const indicatorAnim = useRef(new Animated.Value(0)).current;
@@ -188,6 +191,20 @@ const CategoryProductsScreen = ({ route, navigation }) => {
         Alert.alert('Diet Preference', 'Diet preference filter coming soon');
     };
 
+    const handleOpenVariantModal = (product) => {
+        setSelectedProduct(product);
+        setVariantModalVisible(true);
+    };
+
+    const handleCloseVariantModal = () => {
+        setVariantModalVisible(false);
+        setSelectedProduct(null);
+    };
+
+    const handleAddVariant = (variantProduct) => {
+        handleAddToCart(variantProduct, 1);
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
@@ -269,6 +286,7 @@ const CategoryProductsScreen = ({ route, navigation }) => {
                                             product={product}
                                             onAddToCart={handleAddToCart}
                                             onToggleWishlist={handleToggleWishlist}
+                                            onOpenVariantModal={handleOpenVariantModal}
                                         />
                                     </View>
                                 ))
@@ -277,6 +295,14 @@ const CategoryProductsScreen = ({ route, navigation }) => {
                     </ScrollView>
                 </View>
             </View>
+
+            {/* Product Variant Modal */}
+            <ProductVariantModal
+                visible={variantModalVisible}
+                onClose={handleCloseVariantModal}
+                product={selectedProduct}
+                onAddVariant={handleAddVariant}
+            />
 
             {/* View Cart Bar */}
             {totalItems > 0 && <CartBubble />}
