@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import OrderAgainScreen from '../screens/OrderAgainScreen';
@@ -39,7 +40,8 @@ const CategoriesStackNavigator = () => {
 const AnimatedTabBar = (props) => {
     const isTabBarVisible = useUIStore(state => state.isTabBarVisible);
     const translateY = useRef(new Animated.Value(0)).current;
-    const TAB_BAR_HEIGHT = 60 + (Platform.OS === 'ios' ? 20 : 0); // Adjust based on safe area
+    const insets = useSafeAreaInsets();
+    const TAB_BAR_HEIGHT = 60 + insets.bottom; // Adjust based on safe area
 
     useEffect(() => {
         Animated.timing(translateY, {
@@ -67,6 +69,8 @@ const AnimatedTabBar = (props) => {
 };
 
 const BottomTabNavigator = () => {
+    const insets = useSafeAreaInsets();
+
     return (
         <Tab.Navigator
             tabBar={props => <AnimatedTabBar {...props} />}
@@ -75,9 +79,9 @@ const BottomTabNavigator = () => {
                 tabBarActiveTintColor: '#0C831F', // Blinkit Green
                 tabBarInactiveTintColor: '#666',
                 tabBarStyle: {
-                    paddingBottom: 5,
+                    paddingBottom: Platform.OS === 'ios' ? 0 : 5 + insets.bottom, // Add bottom padding for Android
                     paddingTop: 5,
-                    height: 60,
+                    height: 60 + (Platform.OS === 'ios' ? 0 : insets.bottom), // Increase height to accommodate padding
                     backgroundColor: '#FFFFFF',
                     borderTopWidth: 1,
                     borderTopColor: '#E0E0E0',
@@ -90,6 +94,7 @@ const BottomTabNavigator = () => {
                 tabBarLabelStyle: {
                     fontSize: 12,
                     fontWeight: '500',
+                    marginBottom: Platform.OS === 'ios' ? 0 : 5, // Adjust label position
                 },
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
@@ -124,3 +129,4 @@ const styles = StyleSheet.create({
 });
 
 export default BottomTabNavigator;
+

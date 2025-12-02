@@ -18,8 +18,6 @@ import AppFooter from '../components/AppFooter';
 import ProductVariantModal from '../components/ProductVariantModal';
 import useUIStore from '../stores/uiStore';
 
-import ProductAdvertiser from '../components/ProductAdvertiser';
-
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [wishlistedItems, setWishlistedItems] = useState({});
@@ -33,7 +31,7 @@ const HomeScreen = ({ navigation }) => {
     const AD_DATA = [
         {
             id: '1',
-            title: 'Cheese Mania',
+            title: 'Cheese Mania23',
             subtitle: 'Explore a wide range of cheese and breads',
             poweredBy: 'Dlecta',
             backgroundColor: '#FFD54F', // Light Amber
@@ -178,9 +176,6 @@ const HomeScreen = ({ navigation }) => {
                 contentContainerStyle={styles.scrollContent}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}>
-
-                {/* Product Advertiser Carousel */}
-                <ProductAdvertiser ads={AD_DATA} />
 
                 {/* Glow up starts right here - Sunscreen */}
                 <CategorySection
@@ -334,3 +329,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+

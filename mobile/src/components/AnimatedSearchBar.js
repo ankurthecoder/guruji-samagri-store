@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     Text,
     Animated,
+    Easing,
 } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
 
@@ -52,7 +53,8 @@ const AnimatedSearchBar = ({
             // Animate slide up
             Animated.timing(slideAnim, {
                 toValue: -1, // Slide up by full height
-                duration: 250,
+                duration: 400, // Increased duration for smoothness
+                easing: Easing.out(Easing.ease), // Add easing for natural movement
                 useNativeDriver: true,
             }).start(() => {
                 // Update current index
@@ -90,12 +92,12 @@ const AnimatedSearchBar = ({
     // - Next text: 100% -> 0 (slides up into view)
     const currentTranslateY = slideAnim.interpolate({
         inputRange: [-1, 0],
-        outputRange: [-20, 0], // -20 is approximate height, slides up
+        outputRange: [-40, 0], // Increased translation distance to match new height
     });
 
     const nextTranslateY = slideAnim.interpolate({
         inputRange: [-1, 0],
-        outputRange: [0, 20], // Starts below, slides up to position
+        outputRange: [0, 40], // Starts below, slides up to position
     });
 
     return (
@@ -179,6 +181,7 @@ const styles = StyleSheet.create({
     placeholderContainer: {
         position: 'absolute',
         left: SIZES.PADDING_LG,
+        right: 60, // Constrain width to prevent wrapping issues (50px button + padding)
         top: 0,
         bottom: 0,
         flexDirection: 'row',
@@ -190,7 +193,8 @@ const styles = StyleSheet.create({
         color: '#999',
     },
     animatedTextContainer: {
-        height: 20,
+        flex: 1, // Take remaining space
+        height: 40,
         overflow: 'hidden',
         justifyContent: 'center',
     },
@@ -198,10 +202,16 @@ const styles = StyleSheet.create({
         fontSize: SIZES.FONT_MD,
         color: '#666',
         fontWeight: '500',
+        height: 40,
+        textAlignVertical: 'center',
+        lineHeight: 40,
+        width: '100%', // Ensure text takes full width
     },
     placeholderNext: {
         position: 'absolute',
         top: 0,
+        left: 0, // Ensure alignment
+        right: 0, // Ensure alignment
     },
     inputWrapper: {
         flex: 1,
@@ -228,3 +238,4 @@ const styles = StyleSheet.create({
 });
 
 export default AnimatedSearchBar;
+
