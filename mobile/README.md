@@ -1,189 +1,97 @@
-# Guruji Samagri Store - Mobile App
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-React Native mobile application for the Guruji Samagri Store e-commerce platform with Phone OTP authentication and Blinkit-inspired UI.
+# Getting Started
 
-## Features
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
-- 📱 **Phone OTP Authentication** via Firebase
-- 👤 **User Profile Management**
-- 🏠 **Blinkit-Style Home Screen** with categories and products
-- 🛒 **Shopping Cart** with Zustand state management
-- 🎨 **Brand Colors**: #F7CA00 (Accent Yellow), #0C831F (Primary Green)
+## Step 1: Start Metro
 
-## Tech Stack
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-- **Framework**: React Native (Bare Workflow)
-- **State Management**: Zustand
-- **Navigation**: React Navigation v6
-- **Authentication**: Firebase Auth (Phone OTP)
-- **API Client**: Axios
-- **Storage**: AsyncStorage
+To start the Metro dev server, run the following command from the root of your React Native project:
 
-## Prerequisites
+```sh
+# Using npm
+npm start
 
-- Node.js (v16+)
-- React Native CLI
-- Android Studio (for Android development)
-- Xcode (for iOS development, macOS only)
-- Firebase Project configured
-
-## Setup Instructions
-
-### 1. Install Dependencies
-
-```bash
-cd mobile
-npm install
+# OR using Yarn
+yarn start
 ```
 
-### 2. Configure Firebase
+## Step 2: Build and run your app
 
-1. **For Android**:
-   - Download `google-services.json` from Firebase Console
-   - Place it in `mobile/android/app/`
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
-2. **For iOS**:
-   - Download `GoogleService-Info.plist` from Firebase Console
-   - Place it in `mobile/ios/GurujiSamagriStore/`
-   - Run `cd ios && pod install && cd ..`
+### Android
 
-### 3. Update API Configuration
+```sh
+# Using npm
+npm run android
 
-Edit `src/constants/config.js` and update the API base URL to point to your backend:
-
-```javascript
-export const API_BASE_URL = 'http://YOUR_BACKEND_IP:5000/api';
+# OR using Yarn
+yarn android
 ```
 
-**Note**: For Android emulator, use `10.0.2.2` instead of `localhost`.
+### iOS
 
-### 4. Run the App
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
 
-**For Android**:
-```bash
-npx react-native run-android
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+
+```sh
+bundle install
 ```
 
-**For iOS**:
-```bash
-npx react-native run-ios
+Then, and every time you update your native dependencies, run:
+
+```sh
+bundle exec pod install
 ```
 
-**Development Server** (Metro):
-If not started automatically:
-```bash
-npx react-native start
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+
+```sh
+# Using npm
+npm run ios
+
+# OR using Yarn
+yarn ios
 ```
 
-## Project Structure
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-```
-mobile/
-├── src/
-│   ├── constants/           # Colors, config, constants
-│   ├── stores/              # Zustand stores (auth, cart)
-│   ├── services/            # API client, Firebase auth
-│   ├── screens/             # Screen components
-│   │   ├── auth/            # Authentication screens
-│   │   └── HomeScreen.js    # Main home screen
-│   ├── components/          # Reusable components
-│   └── navigation/          # Navigation setup
-├── android/                 # Android native code
-├── ios/                     # iOS native code
-├── App.js                   # Root component
-└── package.json
-```
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
-## Screens
+## Step 3: Modify your app
 
-### Authentication Flow
+Now that you have successfully run the app, let's make changes!
 
-1. **PhoneLoginScreen**: Enter phone number → Send OTP
-2. **OTPVerifyScreen**: Verify 6-digit OTP → Backend authentication
-3. **ProfileSetupScreen** (new users only): Enter name, DOB, gender
-4. **HomeScreen**: Main app interface
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
 
-### Home Screen Features
+When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
 
-- Header with user greeting and cart icon (with badge)
-- Search bar for product search
-- Horizontal category scroller
-- Product grid with:
-  - Product name, category, price
-  - Add to cart button
-  - Responsive 2-column layout
+- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
 
-## State Management
+## Congratulations! :tada:
 
-### Auth Store (`stores/authStore.js`)
+You've successfully run and modified your React Native App. :partying_face:
 
-- User data
-- JWT token
-- Authentication status
-- Profile completion status
-- Persisted to AsyncStorage
+### Now what?
 
-### Cart Store (`stores/cartStore.js`)
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
 
-- Cart items
-- Add/remove/update quantity
-- Automatic total calculation
+# Troubleshooting
 
-## API Integration
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
-### Services
+# Learn More
 
-- `services/firebaseAuth.js`: Firebase OTP functions
-- `services/apiClient.js`: Axios instance with interceptors
-- `services/api.js`: API endpoint functions
+To learn more about React Native, take a look at the following resources:
 
-### Endpoints Used
-
-- `POST /api/auth/verify-otp` - Authenticate with Firebase token
-- `POST /api/user/profile` - Complete user profile
-- `GET /api/products` - Get products with filters
-- `POST /api/orders` - Create new order
-
-## Environment Configuration
-
-Development vs Production is automatically detected via `__DEV__` constant:
-
-```javascript
-// In src/constants/config.js
-export const API_BASE_URL = __DEV__
-  ? 'http://10.0.2.2:5000/api'  // Android emulator
-  : 'https://your-production-api.com/api';
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Firebase not configured**:
-   - Ensure `google-services.json` (Android) or `GoogleService-Info.plist` (iOS) are in correct locations
-   - Rebuild app after adding config files
-
-2. **Cannot connect to backend**:
-   - For Android emulator: Use `10.0.2.2` instead of `localhost`
-   - For iOS simulator: Use `localhost` or your machine's IP
-   - Ensure backend server is running
-
-3. **OTP not receiving**:
-   - Check Firebase Console → Authentication → Sign-in method → Phone is enabled
-   - Verify phone number format includes country code (+91)
-
-4. **Build failures**:
-   - Clean build: `cd android && ./gradlew clean && cd ..`
-   - Clear Metro cache: `npx react-native start --reset-cache`
-
-## Next Steps
-
-- Implement cart screen
-- Add product details screen
-- Implement checkout flow
-- Add order history screen
-- Implement user profile screen
-
-## License
-
-ISC
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
