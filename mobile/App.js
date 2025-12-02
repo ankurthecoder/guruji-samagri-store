@@ -2,6 +2,7 @@ import React from 'react';
 import { SafeAreaView, StatusBar, StyleSheet } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/constants/colors';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const App = () => {
     return (
@@ -10,7 +11,10 @@ const App = () => {
                 barStyle="light-content"
                 backgroundColor={COLORS.PRIMARY}
             />
-            <AppNavigator />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+
+                <AppNavigator />
+            </GestureHandlerRootView>
         </SafeAreaView>
     );
 };

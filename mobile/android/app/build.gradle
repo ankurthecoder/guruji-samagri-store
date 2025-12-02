@@ -1,3 +1,4 @@
+//apply from: "../../node_modules/react-native-reanimated/animations.groovy"
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
@@ -105,6 +106,9 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    project.ext.react = [
+    enableHermes: true  // <- must be true
+]
    packagingOptions {
     jniLibs {
         useLegacyPackaging = true

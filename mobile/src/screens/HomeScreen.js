@@ -17,6 +17,8 @@ import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import ProductVariantModal from '../components/ProductVariantModal';
 import useUIStore from '../stores/uiStore';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import CarouselComponent from '../components/CarouselComponent';
 
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +28,33 @@ const HomeScreen = ({ navigation }) => {
     const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
     const lastContentOffset = useRef(0);
     const isTabBarVisible = useRef(true);
-
+    const data = [
+        {
+            id: 1,
+            image: 'https://picsum.photos/700/400?1',
+            title: 'Slide 1',
+        },
+        {
+            id: 2,
+            image: 'https://picsum.photos/700/400?2',
+            title: 'Slide 2',
+        },
+        {
+            id: 3,
+            image: 'https://picsum.photos/700/400?3',
+            title: 'Slide 3',
+        },
+        {
+            id: 4,
+            image: 'https://picsum.photos/700/400?4',
+            title: 'Slide 4',
+        },
+        {
+            id: 5,
+            image: 'https://picsum.photos/700/400?5',
+            title: 'Slide 5',
+        },
+    ]
     // Mock Data for Advertiser
     const AD_DATA = [
         {
@@ -177,6 +205,7 @@ const HomeScreen = ({ navigation }) => {
                 onScroll={handleScroll}
                 scrollEventThrottle={16}>
 
+                <CarouselComponent data={data} />
                 {/* Glow up starts right here - Sunscreen */}
                 <CategorySection
                     title="Sunscreen Essentials"
