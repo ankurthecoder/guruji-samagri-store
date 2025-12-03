@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
 import AnimatedSearchBar from './AnimatedSearchBar';
 import useAuthStore from '../stores/authStore';
@@ -12,13 +12,33 @@ const AppHeader = ({
     searchQuery = '',
     onSearchChange,
     onSearchSubmit,
+    scrollY,
 }) => {
     const user = useAuthStore(state => state.user);
     const totalItems = useCartStore(state => state.totalItems);
 
+    // Calculate the translation based on scroll position
+    // We want to hide the "Top Info" part which is approximately 80-100px
+    // The total header height is roughly 180px
+    const HEADER_MAX_HEIGHT = 180;
+    const HEADER_MIN_HEIGHT = 100; // Just enough for search bar + padding
+    const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+
+    const headerTranslateY = scrollY.interpolate({
+        inputRange: [0, HEADER_SCROLL_DISTANCE],
+        outputRange: [0, -HEADER_SCROLL_DISTANCE],
+        extrapolate: 'clamp',
+    });
+
+    const topInfoOpacity = scrollY.interpolate({
+        inputRange: [0, HEADER_SCROLL_DISTANCE / 2],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
+
     return (
-        <View style={styles.header}>
-            <View style={styles.headerTop}>
+        <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
+            <Animated.View style={[styles.headerTop, { opacity: topInfoOpacity }]}>
                 <View>
                     <Text style={styles.headerTitle}>{title}</Text>
                     <Text style={styles.headerSubtitle}>Hi, {user?.name || 'User'}!</Text>
@@ -34,7 +54,7 @@ const AppHeader = ({
                         </View>
                     )}
                 </TouchableOpacity>
-            </View>
+            </Animated.View>
 
             {/* Search Bar */}
             {showSearch && (
@@ -54,12 +74,17 @@ const AppHeader = ({
                     rotationInterval={2000}
                 />
             )}
-        </View>
+        </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
     header: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
         backgroundColor: COLORS.PRIMARY,
         paddingHorizontal: SIZES.PADDING_XL,
         paddingTop: SIZES.PADDING_XXL + 8,
@@ -71,12 +96,19 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 6,
+        height: 180, // Fixed height for animation calculations
+        justifyContent: 'flex-end', // Align content to bottom so search bar stays
     },
     headerTop: {
+        position: 'absolute',
+        top: SIZES.PADDING_XXL + 8,
+        left: SIZES.PADDING_XL,
+        right: SIZES.PADDING_XL,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: SIZES.PADDING_LG,
+        height: 60, // Fixed height for top part
     },
     headerTitle: {
         fontSize: 22,

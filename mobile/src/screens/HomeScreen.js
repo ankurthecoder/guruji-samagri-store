@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Alert,
+    Animated,
 } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
 import CategorySection from '../components/CategorySection';
@@ -107,25 +108,33 @@ const HomeScreen = ({ navigation }) => {
         handleAddToCart(variantProduct, 1);
     };
 
-    const handleScroll = (event) => {
-        const currentOffset = event.nativeEvent.contentOffset.y;
-        const diff = currentOffset - lastContentOffset.current;
+    const scrollY = useRef(new Animated.Value(0)).current;
 
-        // Ignore small scrolls (bounce effect)
-        if (Math.abs(diff) < 3) return;
+    const handleScroll = Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        {
+            useNativeDriver: false, // height/layout animation might need false, or true if transform only
+            listener: (event) => {
+                const currentOffset = event.nativeEvent.contentOffset.y;
+                const diff = currentOffset - lastContentOffset.current;
 
-        if (diff > 0 && isTabBarVisible.current && currentOffset > 50) {
-            // Scrolling down & tab bar is visible -> Hide it
-            setTabBarVisible(false);
-            isTabBarVisible.current = false;
-        } else if (diff < 0 && !isTabBarVisible.current) {
-            // Scrolling up & tab bar is hidden -> Show it
-            setTabBarVisible(true);
-            isTabBarVisible.current = true;
+                // Ignore small scrolls (bounce effect)
+                if (Math.abs(diff) < 3) return;
+
+                if (diff > 0 && isTabBarVisible.current && currentOffset > 50) {
+                    // Scrolling down & tab bar is visible -> Hide it
+                    setTabBarVisible(false);
+                    isTabBarVisible.current = false;
+                } else if (diff < 0 && !isTabBarVisible.current) {
+                    // Scrolling up & tab bar is hidden -> Show it
+                    setTabBarVisible(true);
+                    isTabBarVisible.current = true;
+                }
+
+                lastContentOffset.current = currentOffset;
+            }
         }
-
-        lastContentOffset.current = currentOffset;
-    };
+    );
 
     const handleSearch = () => {
         // TODO: Implement search functionality
@@ -195,13 +204,14 @@ const HomeScreen = ({ navigation }) => {
                 onSearchChange={setSearchQuery}
                 onSearchSubmit={handleSearch}
                 onSearchPress={() => navigation.navigate('Search')}
+                scrollY={scrollY}
             />
 
             {/* Content */}
             <ScrollView
                 style={styles.content}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, { paddingTop: 180 }]} // Adjusted for header height
                 onScroll={handleScroll}
                 scrollEventThrottle={16}>
 
