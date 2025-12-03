@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '../constants/colors';
 import AnimatedSearchBar from './AnimatedSearchBar';
 import useAuthStore from '../stores/authStore';
@@ -14,17 +15,17 @@ const AppHeader = ({
     onSearchSubmit,
     scrollY,
 }) => {
+    const insets = useSafeAreaInsets();
     const user = useAuthStore(state => state.user);
     const totalItems = useCartStore(state => state.totalItems);
 
     // Use provided scrollY or create a dummy one to prevent crashes
     const scrollAnim = scrollY || new Animated.Value(0);
 
-    // Calculate the translation based on scroll position
-    // We want to hide the "Top Info" part which is approximately 80-100px
-    // The total header height is roughly 180px
-    const HEADER_MAX_HEIGHT = 180;
-    const HEADER_MIN_HEIGHT = 100; // Just enough for search bar + padding
+    // Dynamic dimensions based on safe area
+    const BASE_HEADER_HEIGHT = 135; // Base height without safe area
+    const HEADER_MAX_HEIGHT = BASE_HEADER_HEIGHT + insets.top;
+    const HEADER_MIN_HEIGHT = 60 + insets.top; // Search bar height + safe area
     const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
     const headerTranslateY = scrollAnim.interpolate({
@@ -40,8 +41,21 @@ const AppHeader = ({
     });
 
     return (
-        <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
-            <Animated.View style={[styles.headerTop, { opacity: topInfoOpacity }]}>
+        <Animated.View style={[
+            styles.header,
+            {
+                height: HEADER_MAX_HEIGHT,
+                paddingTop: insets.top + SIZES.PADDING_SM, // Dynamic padding
+                transform: [{ translateY: headerTranslateY }]
+            }
+        ]}>
+            <Animated.View style={[
+                styles.headerTop,
+                {
+                    top: insets.top + SIZES.PADDING_SM, // Adjust top position
+                    opacity: topInfoOpacity
+                }
+            ]}>
                 <View>
                     <Text style={styles.headerTitle}>{title}</Text>
                     <Text style={styles.headerSubtitle}>Hi, {user?.name || 'User'}!</Text>
@@ -90,8 +104,8 @@ const styles = StyleSheet.create({
         zIndex: 1000,
         backgroundColor: COLORS.PRIMARY,
         paddingHorizontal: SIZES.PADDING_XL - 8,
-        paddingTop: SIZES.PADDING_XXL + 8,
-        paddingBottom: SIZES.PADDING_XL,
+        // paddingTop is now handled dynamically
+        paddingBottom: SIZES.PADDING_MD, // Reduced from XL
         borderBottomLeftRadius: SIZES.RADIUS_XL,
         borderBottomRightRadius: SIZES.RADIUS_XL,
         shadowColor: '#000',
@@ -99,18 +113,18 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 6,
-        height: 160, // Fixed height for animation calculations
+        // height is now handled dynamically
         justifyContent: 'flex-end', // Align content to bottom so search bar stays
     },
     headerTop: {
         position: 'absolute',
-        top: SIZES.PADDING_XXL,
+        // top is now handled dynamically
         left: SIZES.PADDING_XL,
         right: SIZES.PADDING_XL,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: SIZES.PADDING_LG,
+        marginBottom: SIZES.PADDING_SM, // Reduced from LG
         height: 60, // Fixed height for top part
     },
     headerTitle: {

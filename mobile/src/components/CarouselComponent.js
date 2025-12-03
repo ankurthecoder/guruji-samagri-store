@@ -170,11 +170,11 @@ const CarouselComponent = ({ data = [] }) => {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        marginVertical: 15,
+        marginBottom: 5,
     },
     scrollContent: {
         paddingHorizontal: (width - CARD_WIDTH) / 2,
-        paddingVertical: 20,
+        paddingBottom: 20,
     },
     cardContainer: {
         width: CARD_WIDTH,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        height: 200,
+        height: 170,
         resizeMode: 'cover',
     },
     title: {
