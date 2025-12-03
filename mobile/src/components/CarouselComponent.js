@@ -1,10 +1,11 @@
 // src/components/CarouselComponent.js
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Image, Text, Dimensions, StyleSheet, ScrollView, Animated } from 'react-native';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.82;
-const CARD_SPACING = 5;
+const CARD_SPACING = scale(5);
 const SIDE_CARD_SCALE = 0.95;
 
 const CarouselComponent = ({ data = [] }) => {
@@ -152,7 +153,7 @@ const CarouselComponent = ({ data = [] }) => {
             </Animated.ScrollView>
 
             {/* Pagination dots */}
-            <View style={styles.pagination}>
+            {/* <View style={styles.pagination}>
                 {data.map((_, index) => (
                     <View
                         key={index}
@@ -162,7 +163,7 @@ const CarouselComponent = ({ data = [] }) => {
                         ]}
                     />
                 ))}
-            </View>
+            </View> */}
         </View>
     );
 };
@@ -170,11 +171,11 @@ const CarouselComponent = ({ data = [] }) => {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        marginBottom: 5,
+        marginBottom: verticalScale(5),
     },
     scrollContent: {
         paddingHorizontal: (width - CARD_WIDTH) / 2,
-        paddingBottom: 20,
+        paddingBottom: verticalScale(10),
     },
     cardContainer: {
         width: CARD_WIDTH,
@@ -182,24 +183,24 @@ const styles = StyleSheet.create({
     },
     card: {
         width: '100%',
-        borderRadius: 16,
+        borderRadius: scale(16),
         overflow: 'hidden',
         backgroundColor: '#fff',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: verticalScale(4) },
         shadowOpacity: 0.2,
-        shadowRadius: 12,
+        shadowRadius: scale(12),
         elevation: 8,
     },
     image: {
         width: '100%',
-        height: 170,
+        height: verticalScale(140),
         resizeMode: 'cover',
     },
     title: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingVertical: verticalScale(12),
+        paddingHorizontal: scale(16),
+        fontSize: moderateScale(16),
         fontWeight: '600',
         color: '#333',
         textAlign: 'center',
@@ -207,18 +208,18 @@ const styles = StyleSheet.create({
     pagination: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginTop: 5,
+        marginTop: verticalScale(5),
     },
     dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+        width: scale(8),
+        height: scale(8),
+        borderRadius: scale(4),
         backgroundColor: '#ccc',
-        marginHorizontal: 4,
+        marginHorizontal: scale(4),
     },
     activeDot: {
         backgroundColor: '#FF6B35',
-        width: 24,
+        width: scale(24),
     },
 });
 

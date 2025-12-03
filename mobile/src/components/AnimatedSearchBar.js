@@ -8,6 +8,7 @@ import {
     Animated,
     Easing,
 } from 'react-native';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { COLORS, SIZES } from '../constants/colors';
 
 /**
@@ -92,12 +93,12 @@ const AnimatedSearchBar = ({
     // - Next text: 100% -> 0 (slides up into view)
     const currentTranslateY = slideAnim.interpolate({
         inputRange: [-1, 0],
-        outputRange: [-40, 0], // Increased translation distance to match new height
+        outputRange: [-verticalScale(40), 0], // Responsive translation distance
     });
 
     const nextTranslateY = slideAnim.interpolate({
         inputRange: [-1, 0],
-        outputRange: [0, 40], // Starts below, slides up to position
+        outputRange: [0, verticalScale(40)], // Starts below, slides up to position
     });
 
     return (
@@ -168,21 +169,21 @@ const AnimatedSearchBar = ({
 const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
-        height: SIZES.PADDING_XXL + 20,
+        height: verticalScale(SIZES.PADDING_XXL + 8),
         backgroundColor: COLORS.WHITE,
         borderRadius: SIZES.RADIUS_LG,
         overflow: 'hidden',
         position: 'relative',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: verticalScale(2) },
         shadowOpacity: 0.08,
-        shadowRadius: 4,
+        shadowRadius: scale(4),
         elevation: 3,
     },
     placeholderContainer: {
         position: 'absolute',
         left: SIZES.PADDING_LG,
-        right: 60, // Constrain width to prevent wrapping issues (50px button + padding)
+        right: scale(60), // Constrain width to prevent wrapping issues (50px button + padding)
         top: 0,
         bottom: 0,
         flexDirection: 'row',
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     },
     animatedTextContainer: {
         flex: 1, // Take remaining space
-        height: 40,
+        height: verticalScale(40),
         overflow: 'hidden',
         justifyContent: 'center',
     },
@@ -203,9 +204,9 @@ const styles = StyleSheet.create({
         fontSize: SIZES.FONT_MD,
         color: '#666',
         fontWeight: '500',
-        height: 40,
+        height: verticalScale(40),
         textAlignVertical: 'center',
-        lineHeight: 40,
+        lineHeight: verticalScale(40),
         width: '100%', // Ensure text takes full width
     },
     placeholderNext: {
@@ -226,13 +227,13 @@ const styles = StyleSheet.create({
         zIndex: 2,
     },
     searchButton: {
-        width: 50,
+        width: scale(50),
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.ACCENT,
     },
     searchIcon: {
-        fontSize: 24,
+        fontSize: moderateScale(24),
         color: COLORS.TEXT_PRIMARY,
         fontWeight: '600',
     },

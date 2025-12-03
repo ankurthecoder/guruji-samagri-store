@@ -8,6 +8,8 @@ import {
     Alert,
     Animated,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { verticalScale, scale } from 'react-native-size-matters';
 import { COLORS, SIZES } from '../constants/colors';
 import CategorySection from '../components/CategorySection';
 import mockProducts from '../data/mockProducts';
@@ -23,6 +25,7 @@ import CarouselComponent from '../components/CarouselComponent';
 import BottomSheetHandler from '../components/BottomSheetHanlder';
 
 const HomeScreen = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [wishlistedItems, setWishlistedItems] = useState({});
     const [variantModalVisible, setVariantModalVisible] = useState(false);
@@ -30,6 +33,10 @@ const HomeScreen = ({ navigation }) => {
     const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
     const lastContentOffset = useRef(0);
     const isTabBarVisible = useRef(true);
+
+    // Calculate dynamic header height (same logic as AppHeader)
+    const BASE_HEADER_HEIGHT = verticalScale(125);
+    const HEADER_MAX_HEIGHT = BASE_HEADER_HEIGHT + insets.top;
     const data = [
         {
             id: 1,
@@ -200,7 +207,7 @@ const HomeScreen = ({ navigation }) => {
             {/* Header */}
 
             <AppHeader
-                title="Guruji Samagri Store"
+                title="GS"
                 showSearch={true}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
@@ -213,7 +220,7 @@ const HomeScreen = ({ navigation }) => {
             <ScrollView
                 style={styles.content}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: 180 }]} // Adjusted for header height
+                contentContainerStyle={[styles.scrollContent, { paddingTop: HEADER_MAX_HEIGHT }]} // Dynamic header height
                 onScroll={handleScroll}
                 scrollEventThrottle={16}>
 
@@ -300,7 +307,7 @@ const HomeScreen = ({ navigation }) => {
                 <CartBubble />
             )}
 
-            <BottomSheetHandler />
+            {/* <BottomSheetHandler /> */}
         </View>
     );
 };
@@ -314,11 +321,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingTop: SIZES.PADDING_LG,
-        paddingBottom: 80, // Space for sticky bar
+        paddingTop: SIZES.PADDING_LG - 20,
+        paddingBottom: verticalScale(80), // Space for sticky bar
     },
     bottomSpacer: {
-        height: 20,
+        height: verticalScale(20),
     },
     viewCartBar: {
         position: 'absolute',
@@ -327,11 +334,11 @@ const styles = StyleSheet.create({
         right: 0,
         backgroundColor: '#2E7D32',
         paddingHorizontal: SIZES.PADDING_LG,
-        paddingVertical: SIZES.PADDING_MD + 2,
+        paddingVertical: SIZES.PADDING_MD + scale(2),
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
+        shadowOffset: { width: 0, height: verticalScale(-2) },
         shadowOpacity: 0.15,
-        shadowRadius: 6,
+        shadowRadius: scale(6),
         elevation: 8,
     },
     viewCartContent: {
@@ -344,11 +351,11 @@ const styles = StyleSheet.create({
         marginRight: SIZES.PADDING_MD,
     },
     cartEmoji: {
-        fontSize: 24,
-        marginRight: 6,
+        fontSize: scale(24),
+        marginRight: scale(6),
     },
     productIcons: {
-        fontSize: 18,
+        fontSize: scale(18),
     },
     cartTextContainer: {
         flex: 1,
@@ -364,7 +371,7 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     viewCartArrow: {
-        fontSize: 28,
+        fontSize: scale(28),
         fontWeight: '700',
         color: COLORS.WHITE,
     },

@@ -1,3 +1,5 @@
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+
 // Brand Colors
 export const COLORS = {
     // Primary Colors
@@ -34,36 +36,36 @@ export const COLORS = {
 };
 
 export const SIZES = {
-    // Font Sizes
-    FONT_XS: 10,
-    FONT_SM: 12,
-    FONT_MD: 14,
-    FONT_LG: 16,
-    FONT_XL: 18,
-    FONT_XXL: 20,
-    FONT_TITLE: 24,
-    FONT_HEADING: 28,
+    // Font Sizes - using moderateScale for balanced scaling
+    FONT_XS: moderateScale(10),
+    FONT_SM: moderateScale(12),
+    FONT_MD: moderateScale(14),
+    FONT_LG: moderateScale(16),
+    FONT_XL: moderateScale(18),
+    FONT_XXL: moderateScale(20),
+    FONT_TITLE: moderateScale(24),
+    FONT_HEADING: moderateScale(28),
 
-    // Spacing
-    PADDING_XS: 4,
-    PADDING_SM: 8,
-    PADDING_MD: 12,
-    PADDING_LG: 16,
-    PADDING_XL: 20,
-    PADDING_XXL: 24,
+    // Spacing - using scale for horizontal/general spacing
+    PADDING_XS: scale(4),
+    PADDING_SM: scale(8),
+    PADDING_MD: scale(12),
+    PADDING_LG: scale(16),
+    PADDING_XL: scale(20),
+    PADDING_XXL: scale(24),
 
-    // Border Radius
-    RADIUS_SM: 4,
-    RADIUS_MD: 8,
-    RADIUS_LG: 12,
-    RADIUS_XL: 16,
-    RADIUS_ROUND: 50,
+    // Border Radius - using scale
+    RADIUS_SM: scale(4),
+    RADIUS_MD: scale(8),
+    RADIUS_LG: scale(12),
+    RADIUS_XL: scale(16),
+    RADIUS_ROUND: scale(50),
 
-    // Icon Sizes
-    ICON_SM: 16,
-    ICON_MD: 20,
-    ICON_LG: 24,
-    ICON_XL: 32,
+    // Icon Sizes - using scale
+    ICON_SM: scale(16),
+    ICON_MD: scale(20),
+    ICON_LG: scale(24),
+    ICON_XL: scale(32),
 };
 
 export const FONTS = {
