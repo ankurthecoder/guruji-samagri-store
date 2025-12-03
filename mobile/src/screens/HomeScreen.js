@@ -20,6 +20,7 @@ import ProductVariantModal from '../components/ProductVariantModal';
 import useUIStore from '../stores/uiStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CarouselComponent from '../components/CarouselComponent';
+import BottomSheetHandler from '../components/BottomSheetHanlder';
 
 const HomeScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -197,6 +198,7 @@ const HomeScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             {/* Header */}
+
             <AppHeader
                 title="Guruji Samagri Store"
                 showSearch={true}
@@ -279,13 +281,12 @@ const HomeScreen = ({ navigation }) => {
                     onOpenVariantModal={handleOpenVariantModal}
                 />
 
+
                 {/* Footer */}
                 <AppFooter />
-
                 {/* Bottom Spacing for Sticky Bar */}
                 <View style={styles.bottomSpacer} />
             </ScrollView>
-
             {/* Product Variant Modal */}
             <ProductVariantModal
                 visible={variantModalVisible}
@@ -298,6 +299,8 @@ const HomeScreen = ({ navigation }) => {
             {totalItems > 0 && (
                 <CartBubble />
             )}
+
+            <BottomSheetHandler />
         </View>
     );
 };
