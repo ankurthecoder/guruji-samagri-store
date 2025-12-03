@@ -9,12 +9,15 @@ import {
     SafeAreaView,
     StatusBar,
     ScrollView,
+    Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SIZES } from '../constants/colors';
 import mockProducts from '../data/mockProducts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SearchScreen = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [recentSearches, setRecentSearches] = useState([
@@ -105,7 +108,7 @@ const SearchScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.WHITE} />
 
             {/* Search Header */}
@@ -202,7 +205,7 @@ const SearchScreen = ({ navigation }) => {
                     </>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 

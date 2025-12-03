@@ -205,10 +205,37 @@ const CategoryProductsScreen = ({ route, navigation }) => {
         handleAddToCart(variantProduct, 1);
     };
 
+    // Scroll animation for header
+    const scrollY = useRef(new Animated.Value(0)).current;
+    const HEADER_HEIGHT = 60; // Approximate height of the header
+
+    const headerTranslateY = scrollY.interpolate({
+        inputRange: [0, HEADER_HEIGHT],
+        outputRange: [0, -HEADER_HEIGHT],
+        extrapolate: 'clamp',
+    });
+
+    const headerOpacity = scrollY.interpolate({
+        inputRange: [0, HEADER_HEIGHT / 2],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
+            <Animated.View style={[
+                styles.header,
+                {
+                    transform: [{ translateY: headerTranslateY }],
+                    opacity: headerOpacity,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 100,
+                }
+            ]}>
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
@@ -219,18 +246,35 @@ const CategoryProductsScreen = ({ route, navigation }) => {
                     {category.name}
                 </Text>
                 <View style={styles.headerRight} />
-            </View>
+            </Animated.View>
 
-            {/* Filter Bar */}
-            <FilterBar
-                onFilterPress={handleFilterPress}
-                onSortPress={handleSortPress}
-                onBrandPress={handleBrandPress}
-                onDietPress={handleDietPress}
-            />
+            {/* Filter Bar - Moves up as header collapses */}
+            <Animated.View style={{
+                transform: [{ translateY: headerTranslateY }],
+                marginTop: 60, // Space for the absolute header
+                zIndex: 90,
+            }}>
+                <FilterBar
+                    onFilterPress={handleFilterPress}
+                    onSortPress={handleSortPress}
+                    onBrandPress={handleBrandPress}
+                    onDietPress={handleDietPress}
+                />
+            </Animated.View>
 
             {/* Content */}
-            <View style={styles.content}>
+            <Animated.View style={[styles.content, {
+                transform: [{ translateY: headerTranslateY }],
+                // We need to increase the height or padding to cover the gap at the bottom when it moves up
+                // But since it's flex: 1, moving it up might leave a gap at bottom?
+                // Actually, if we translate the whole container up, we might see background at bottom.
+                // Better approach: Don't translate content, just expand it?
+                // Or just let the header slide over it?
+                // If Header is absolute, Content is already at top (behind header).
+                // We added marginTop: 60 to FilterBar.
+                // Let's try translating the whole block up.
+                paddingBottom: 0,
+            }]}>
                 {/* Left Sidebar - Subcategories */}
                 <View style={styles.sidebarContainer}>
                     <ScrollView
@@ -265,10 +309,15 @@ const CategoryProductsScreen = ({ route, navigation }) => {
 
                 {/* Product Grid */}
                 <View style={styles.productListContainer}>
-                    <ScrollView
+                    <Animated.ScrollView
                         style={styles.productList}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.productListContent}
+                        onScroll={Animated.event(
+                            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                            { useNativeDriver: true }
+                        )}
+                        scrollEventThrottle={16}
                     >
                         <View style={styles.productGrid}>
                             {isLoading ? (
@@ -292,9 +341,9 @@ const CategoryProductsScreen = ({ route, navigation }) => {
                                 ))
                             )}
                         </View>
-                    </ScrollView>
+                    </Animated.ScrollView>
                 </View>
-            </View>
+            </Animated.View>
 
             {/* Product Variant Modal */}
             <ProductVariantModal

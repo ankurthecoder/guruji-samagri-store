@@ -17,6 +17,9 @@ const AppHeader = ({
     const user = useAuthStore(state => state.user);
     const totalItems = useCartStore(state => state.totalItems);
 
+    // Use provided scrollY or create a dummy one to prevent crashes
+    const scrollAnim = scrollY || new Animated.Value(0);
+
     // Calculate the translation based on scroll position
     // We want to hide the "Top Info" part which is approximately 80-100px
     // The total header height is roughly 180px
@@ -24,13 +27,13 @@ const AppHeader = ({
     const HEADER_MIN_HEIGHT = 100; // Just enough for search bar + padding
     const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-    const headerTranslateY = scrollY.interpolate({
+    const headerTranslateY = scrollAnim.interpolate({
         inputRange: [0, HEADER_SCROLL_DISTANCE],
         outputRange: [0, -HEADER_SCROLL_DISTANCE],
         extrapolate: 'clamp',
     });
 
-    const topInfoOpacity = scrollY.interpolate({
+    const topInfoOpacity = scrollAnim.interpolate({
         inputRange: [0, HEADER_SCROLL_DISTANCE / 2],
         outputRange: [1, 0],
         extrapolate: 'clamp',
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
         right: 0,
         zIndex: 1000,
         backgroundColor: COLORS.PRIMARY,
-        paddingHorizontal: SIZES.PADDING_XL,
+        paddingHorizontal: SIZES.PADDING_XL - 8,
         paddingTop: SIZES.PADDING_XXL + 8,
         paddingBottom: SIZES.PADDING_XL,
         borderBottomLeftRadius: SIZES.RADIUS_XL,
@@ -96,12 +99,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 6,
-        height: 180, // Fixed height for animation calculations
+        height: 160, // Fixed height for animation calculations
         justifyContent: 'flex-end', // Align content to bottom so search bar stays
     },
     headerTop: {
         position: 'absolute',
-        top: SIZES.PADDING_XXL + 8,
+        top: SIZES.PADDING_XXL,
         left: SIZES.PADDING_XL,
         right: SIZES.PADDING_XL,
         flexDirection: 'row',

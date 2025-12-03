@@ -168,6 +168,7 @@ const AnimatedSearchBar = ({
 const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
+        height: SIZES.PADDING_XXL + SIZES.PADDING_LG,
         backgroundColor: COLORS.WHITE,
         borderRadius: SIZES.RADIUS_LG,
         overflow: 'hidden',
