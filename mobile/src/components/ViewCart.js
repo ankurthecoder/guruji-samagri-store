@@ -12,17 +12,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
 
 import useUIStore from "../stores/uiStore";
+import useCartStore from "../stores/cartStore";
 
-const CartBubble = ({
-    visible = true,
-    itemCount = 0,
-    totalText = "View cart",
-    subText = "0 items",
-    thumbnails = ['https://picsum.photos/id/237/200/300', 'https://picsum.photos/seed/picsum/200/300', 'https://picsum.photos/id/237/200/300'],
-}) => {
+const CartBubble = () => {
     const navigation = useNavigation();
     const insets = useSafeAreaInsets();
     const isTabBarVisible = useUIStore(state => state.isTabBarVisible);
+
+    // Get cart data from store
+    const cartItems = useCartStore(state => state.items);
+    const totalItems = useCartStore(state => state.totalItems);
+    const totalAmount = useCartStore(state => state.totalAmount);
 
     // Animation values
     const translateY = useRef(new Animated.Value(0)).current;
@@ -31,12 +31,12 @@ const CartBubble = ({
     React.useEffect(() => {
         // Entrance/Exit animation
         Animated.spring(translateY, {
-            toValue: visible ? 0 : 140,
+            toValue: totalItems > 0 ? 0 : 140,
             useNativeDriver: true,
             damping: 12,
             stiffness: 120,
         }).start();
-    }, [visible, translateY]);
+    }, [totalItems, translateY]);
 
     React.useEffect(() => {
         // Position animation based on Tab Bar visibility
@@ -49,11 +49,13 @@ const CartBubble = ({
         }).start();
     }, [isTabBarVisible, positionY]);
 
+    // Get product images from cart items
+    const thumbnails = cartItems.slice(0, 3).map(item => item.product.image || 'https://via.placeholder.com/80');
     const thumbToShow = thumbnails.slice(0, 3);
 
     return (
         <Animated.View
-            pointerEvents={visible ? "auto" : "none"}
+            pointerEvents={totalItems > 0 ? "auto" : "none"}
             style={[
                 styles.container,
                 {
@@ -84,12 +86,11 @@ const CartBubble = ({
                 </View>
 
                 <View style={styles.middle}>
-                    <Text style={styles.title}>{totalText}</Text>
-                    <Text style={styles.subtitle}>{subText}</Text>
+                    <Text style={styles.title}>View cart</Text>
+                    <Text style={styles.subtitle}>{totalItems} {totalItems === 1 ? 'item' : 'items'}</Text>
                 </View>
 
                 <View style={styles.right}>
-
                     <View style={styles.chev}>
                         <Text style={styles.chevText}>›</Text>
                     </View>
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
     },
 
     thumbPlaceholderText: {
-        fontSize: 18,
+        fontSize: 14,
         color: "#fff",
     },
     middle: {
@@ -164,11 +165,11 @@ const styles = StyleSheet.create({
     title: {
         color: "#fff",
         fontWeight: "700",
-        fontSize: 16,
+        fontSize: 13,
     },
     subtitle: {
         color: "#ffffffcc",
-        fontSize: 12,
+        fontSize: 10,
         marginTop: 1,
     },
     right: {
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     countText: {
         color: "#0C831F",
         fontWeight: "700",
-        fontSize: 13,
+        fontSize: 11,
     },
     chev: {
         width: 34,

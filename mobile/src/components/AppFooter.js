@@ -28,10 +28,10 @@ const styles = StyleSheet.create({
         marginTop: SIZES.PADDING_XL,
     },
     heading: {
-        fontSize: 32,
+        fontSize: 24,
         fontWeight: '700',
         color: '#9BA4B5',
-        lineHeight: 42,
+        lineHeight: 32,
         marginBottom: SIZES.PADDING_XL,
     },
     craftedContainer: {

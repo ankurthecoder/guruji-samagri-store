@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     title: {
         paddingVertical: verticalScale(12),
         paddingHorizontal: scale(16),
-        fontSize: moderateScale(16),
+        fontSize: moderateScale(12),
         fontWeight: '600',
         color: '#333',
         textAlign: 'center',

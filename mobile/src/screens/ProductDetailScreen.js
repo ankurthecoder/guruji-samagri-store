@@ -16,6 +16,7 @@ import { COLORS, SIZES } from '../constants/colors';
 import AccordionSection from '../components/AccordionSection';
 import ImageLightbox from '../components/ImageLightbox';
 import useCartStore from '../stores/cartStore';
+import CartBubble from '../components/ViewCart';
 
 const { width } = Dimensions.get('window');
 
@@ -106,15 +107,30 @@ const ProductDetailScreen = ({ route, navigation }) => {
         setCurrentImageIndex(index);
     };
 
-    const handleAddToCart = () => {
-        addItem({
-            _id: product.id,
-            name: product.name,
-            price: product.price,
-            category: product.category,
-        }, 1);
+    const handleAddToCart = (quantityChange = 1) => {
+        const cartItem = cartItems.find(item => item.product._id === product.id);
+        const currentQuantity = cartItem ? cartItem.quantity : 0;
+        const newQuantity = currentQuantity + quantityChange;
+
+        if (newQuantity <= 0) {
+            // Remove from cart
+            updateQuantity(product.id, 0);
+        } else if (currentQuantity === 0) {
+            // Add new item
+            addItem({
+                _id: product.id,
+                name: product.name,
+                price: product.price,
+                category: product.category,
+            }, quantityChange);
+        } else {
+            // Update existing item
+            updateQuantity(product.id, newQuantity);
+        }
     };
 
+    const updateQuantity = useCartStore(state => state.updateQuantity);
+    const totalItems = useCartStore(state => state.totalItems);
     const cartItem = cartItems.find(item => item.product._id === product.id);
     const cartQuantity = cartItem ? cartItem.quantity : 0;
 
@@ -145,6 +161,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
                         showsHorizontalScrollIndicator={false}
                         onScroll={handleImageScroll}
                         scrollEventThrottle={16}
+                        nestedScrollEnabled={true}
                     >
                         {productImages.map((imageUri, index) => (
                             <TouchableOpacity
@@ -308,16 +325,39 @@ const ProductDetailScreen = ({ route, navigation }) => {
                     <Text style={styles.stickyPrice}>₹{product.price}</Text>
                     <Text style={styles.stickyTaxText}>Inclusive of all taxes</Text>
                 </View>
-                <TouchableOpacity
-                    style={styles.addToCartButton}
-                    onPress={handleAddToCart}
-                    activeOpacity={0.8}
-                >
-                    <Text style={styles.addToCartText}>
-                        {cartQuantity > 0 ? `Added (${cartQuantity})` : 'Add to cart'}
-                    </Text>
-                </TouchableOpacity>
+
+                {/* ADD Button or Quantity Controls */}
+                {cartQuantity > 0 ? (
+                    <View style={styles.quantityControls}>
+                        <TouchableOpacity
+                            style={styles.quantityButton}
+                            onPress={() => handleAddToCart(-1)}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={styles.quantityButtonText}>−</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.quantityText}>{cartQuantity}</Text>
+                        <TouchableOpacity
+                            style={styles.quantityButton}
+                            onPress={() => handleAddToCart(1)}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={styles.quantityButtonText}>+</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <TouchableOpacity
+                        style={styles.addToCartButton}
+                        onPress={() => handleAddToCart(1)}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.addToCartText}>ADD</Text>
+                    </TouchableOpacity>
+                )}
             </View>
+
+            {/* Cart Bubble - Shows when cart has items */}
+            {totalItems > 0 && <CartBubble />}
 
             {/* Image Lightbox */}
             <ImageLightbox
@@ -405,13 +445,15 @@ const styles = StyleSheet.create({
     },
     infoSection: {
         paddingHorizontal: scale(16),
+        paddingTop: verticalScale(16),
+        paddingBottom: verticalScale(16),
     },
     productTitle: {
-        fontSize: SIZES.FONT_XL,
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: COLORS.TEXT_PRIMARY,
         marginBottom: verticalScale(8),
-        lineHeight: moderateScale(24),
+        lineHeight: moderateScale(20),
     },
     ratingContainer: {
         flexDirection: 'row',
@@ -423,7 +465,7 @@ const styles = StyleSheet.create({
         marginRight: scale(4),
     },
     star: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         marginRight: scale(2),
     },
     reviewCount: {
@@ -440,7 +482,7 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(4),
     },
     price: {
-        fontSize: moderateScale(24),
+        fontSize: moderateScale(18),
         fontWeight: '700',
         color: COLORS.TEXT_PRIMARY,
         marginRight: scale(8),
@@ -508,7 +550,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     featureIcon: {
-        fontSize: moderateScale(28),
+        fontSize: moderateScale(20),
         marginBottom: verticalScale(4),
     },
     featureTitle: {
@@ -535,7 +577,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     detailsArrow: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(12),
         color: COLORS.PRIMARY,
         transform: [{ rotate: '180deg' }],
     },
@@ -613,7 +655,8 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     stickyBarLeft: {
-        flex: 1,
+        flex: 0,
+        marginRight: scale(12),
     },
     stickyVariant: {
         fontSize: SIZES.FONT_MD,
@@ -621,7 +664,7 @@ const styles = StyleSheet.create({
         color: COLORS.TEXT_PRIMARY,
     },
     stickyPrice: {
-        fontSize: moderateScale(20),
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: COLORS.TEXT_PRIMARY,
     },
@@ -630,17 +673,49 @@ const styles = StyleSheet.create({
         color: COLORS.TEXT_SECONDARY,
     },
     addToCartButton: {
-        backgroundColor: COLORS.PRIMARY,
+        borderWidth: 1.5,
+        borderColor: COLORS.PRIMARY,
+        backgroundColor: COLORS.WHITE,
         paddingHorizontal: scale(24),
-        paddingVertical: verticalScale(12),
+        paddingVertical: verticalScale(10),
         borderRadius: scale(8),
-        minWidth: scale(120),
+        width: scale(120),
         alignItems: 'center',
+        flexShrink: 0,
     },
     addToCartText: {
-        color: COLORS.WHITE,
+        color: COLORS.PRIMARY,
         fontSize: SIZES.FONT_LG,
         fontWeight: '700',
+    },
+    quantityControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.PRIMARY,
+        borderRadius: scale(8),
+        paddingVertical: verticalScale(8),
+        paddingHorizontal: scale(6),
+        width: scale(120),
+        flexShrink: 0,
+    },
+    quantityButton: {
+        width: scale(32),
+        height: scale(32),
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    quantityButtonText: {
+        fontSize: moderateScale(18),
+        fontWeight: '600',
+        color: COLORS.WHITE,
+    },
+    quantityText: {
+        flex: 1,
+        fontSize: moderateScale(14),
+        fontWeight: '700',
+        color: COLORS.WHITE,
+        textAlign: 'center',
+        minWidth: scale(30),
     },
 });
 

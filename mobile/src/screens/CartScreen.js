@@ -13,6 +13,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { COLORS, SIZES } from '../constants/colors';
 import useCartStore from '../stores/cartStore';
+import useUIStore from '../stores/uiStore';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const CartScreen = ({ navigation }) => {
@@ -21,6 +23,14 @@ const CartScreen = ({ navigation }) => {
     const updateQuantity = useCartStore(state => state.updateQuantity);
     const totalAmount = useCartStore(state => state.totalAmount);
     const totalItems = useCartStore(state => state.totalItems);
+    const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setTabBarVisible(false);
+            return () => setTabBarVisible(true);
+        }, [setTabBarVisible])
+    );
 
     // Calculate bill details
     const itemTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity * 1.3), 0); // Original price (30% higher)
@@ -255,30 +265,22 @@ const CartScreen = ({ navigation }) => {
                 </View>
             </ScrollView>
 
-            {/* Fixed Slide to Pay Button */}
-            <View style={[styles.slideToPayContainer, { paddingBottom: insets.bottom }]}>
-                <TouchableOpacity activeOpacity={0.8} style={styles.slideToPayWrapper}>
-                    <LinearGradient
-                        colors={['#0D9B26', '#0C831F', '#0A6B19']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.slideToPayButton}
-                    >
-                        <View style={styles.slideIconContainer}>
-                            <View style={styles.slideIconCircle}>
-                                <Ionicons name="arrow-forward" size={20} color={COLORS.WHITE} />
-                            </View>
-                        </View>
-                        <View style={styles.paymentInfo}>
-                            <Text style={styles.slideToPayLabel}>Slide to Pay</Text>
-                            <Text style={styles.slideToPayAmount}>₹{Math.round(finalAmount)}</Text>
-                        </View>
-                        <View style={styles.slideHintContainer}>
-                            <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.5)" />
-                            <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.5)" style={{ marginLeft: -8 }} />
-                            <Ionicons name="chevron-forward" size={16} color="rgba(255,255,255,0.5)" style={{ marginLeft: -8 }} />
-                        </View>
-                    </LinearGradient>
+            {/* Fixed Place Order Button */}
+            <View style={[styles.placeOrderContainer, { paddingBottom: insets.bottom + 10 }]}>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.placeOrderButton}
+                    onPress={() => {
+                        // Handle place order
+                        console.log('Place Order');
+                    }}
+                >
+                    <View style={styles.placeOrderContent}>
+                        <Text style={styles.placeOrderTotal}>₹{Math.round(finalAmount)}</Text>
+                        <Text style={styles.placeOrderTotalLabel}>TOTAL</Text>
+                    </View>
+                    <Text style={styles.placeOrderText}>Place Order</Text>
+                    <Ionicons name="caret-forward" size={16} color={COLORS.WHITE} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -312,14 +314,14 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(2),
     },
     addressType: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '700',
         color: COLORS.BLACK,
         marginLeft: scale(4),
         marginRight: scale(2),
     },
     addressText: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         color: COLORS.TEXT_SECONDARY,
     },
     printButton: {
@@ -337,7 +339,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: scale(16),
     },
     savingsText: {
-        fontSize: moderateScale(13),
+        fontSize: moderateScale(10),
         color: '#2E7D32',
         fontWeight: '500',
     },
@@ -352,13 +354,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     zeroFeesTitle: {
-        fontSize: moderateScale(28),
+        fontSize: moderateScale(20),
         fontWeight: '800',
         color: '#2196F3',
         letterSpacing: 1,
     },
     zeroFeesSubtitle: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(9),
         color: COLORS.TEXT_SECONDARY,
         marginTop: verticalScale(2),
     },
@@ -371,18 +373,18 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(4),
     },
     feeLabel: {
-        fontSize: moderateScale(10),
+        fontSize: moderateScale(8),
         color: COLORS.TEXT_SECONDARY,
         flex: 1,
     },
     feeStrikethrough: {
-        fontSize: moderateScale(10),
+        fontSize: moderateScale(8),
         color: COLORS.TEXT_SECONDARY,
         textDecorationLine: 'line-through',
         marginRight: scale(6),
     },
     feeFree: {
-        fontSize: moderateScale(10),
+        fontSize: moderateScale(8),
         color: '#00C853',
         fontWeight: '700',
     },
@@ -397,7 +399,7 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(16),
     },
     deliveryTime: {
-        fontSize: moderateScale(16),
+        fontSize: moderateScale(13),
         fontWeight: '700',
         color: COLORS.BLACK,
         marginRight: scale(8),
@@ -412,13 +414,13 @@ const styles = StyleSheet.create({
         marginRight: scale(8),
     },
     superfastText: {
-        fontSize: moderateScale(11),
+        fontSize: moderateScale(9),
         color: '#00C853',
         fontWeight: '600',
         marginLeft: scale(2),
     },
     itemCount: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: COLORS.TEXT_SECONDARY,
         marginLeft: 'auto',
     },
@@ -440,17 +442,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     productName: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '600',
         color: COLORS.BLACK,
     },
     productDescription: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         color: COLORS.TEXT_SECONDARY,
         marginTop: verticalScale(2),
     },
     moveToWishlist: {
-        fontSize: moderateScale(11),
+        fontSize: moderateScale(9),
         color: COLORS.TEXT_SECONDARY,
         marginTop: verticalScale(4),
     },
@@ -471,12 +473,12 @@ const styles = StyleSheet.create({
         paddingVertical: verticalScale(4),
     },
     quantityButtonText: {
-        fontSize: moderateScale(18),
+        fontSize: moderateScale(14),
         color: '#00C853',
         fontWeight: '700',
     },
     quantityText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '600',
         color: '#00C853',
         minWidth: scale(20),
@@ -486,12 +488,12 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
     },
     originalPrice: {
-        fontSize: moderateScale(11),
+        fontSize: moderateScale(9),
         color: COLORS.TEXT_SECONDARY,
         textDecorationLine: 'line-through',
     },
     discountedPrice: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '700',
         color: COLORS.BLACK,
     },
@@ -507,7 +509,7 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
     },
     addMoreText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: COLORS.PRIMARY,
         fontWeight: '600',
         marginLeft: scale(6),
@@ -518,7 +520,7 @@ const styles = StyleSheet.create({
         padding: scale(16),
     },
     savingsCornerTitle: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         fontWeight: '700',
         color: COLORS.TEXT_SECONDARY,
         letterSpacing: 0.5,
@@ -532,7 +534,7 @@ const styles = StyleSheet.create({
         borderBottomColor: COLORS.BORDER,
     },
     couponText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '600',
         color: COLORS.BLACK,
         marginLeft: scale(12),
@@ -562,17 +564,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     paymentText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '600',
         color: COLORS.BLACK,
     },
     cashbackText: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         color: '#00C853',
         marginTop: verticalScale(2),
     },
     changeText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: '#2196F3',
         fontWeight: '600',
     },
@@ -582,7 +584,7 @@ const styles = StyleSheet.create({
         padding: scale(16),
     },
     billDetailsTitle: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         fontWeight: '700',
         color: COLORS.TEXT_SECONDARY,
         letterSpacing: 0.5,
@@ -595,11 +597,11 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(12),
     },
     billLabel: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: COLORS.TEXT_PRIMARY,
     },
     billPrice: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: COLORS.TEXT_PRIMARY,
         fontWeight: '500',
     },
@@ -609,7 +611,7 @@ const styles = StyleSheet.create({
         gap: scale(8),
     },
     billStrikethrough: {
-        fontSize: moderateScale(13),
+        fontSize: moderateScale(10),
         color: COLORS.TEXT_SECONDARY,
         textDecorationLine: 'line-through',
     },
@@ -620,7 +622,7 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
     },
     addTipText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: '#2196F3',
         fontWeight: '600',
     },
@@ -636,22 +638,22 @@ const styles = StyleSheet.create({
         marginRight: scale(8),
     },
     oneLogoText: {
-        fontSize: moderateScale(10),
+        fontSize: moderateScale(8),
         color: COLORS.WHITE,
         fontWeight: '700',
     },
     feeFreeGreen: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: '#00C853',
         fontWeight: '700',
     },
     billTotalLabel: {
-        fontSize: moderateScale(16),
+        fontSize: moderateScale(13),
         fontWeight: '700',
         color: COLORS.BLACK,
     },
     billTotalPrice: {
-        fontSize: moderateScale(16),
+        fontSize: moderateScale(13),
         fontWeight: '700',
         color: COLORS.BLACK,
     },
@@ -661,42 +663,40 @@ const styles = StyleSheet.create({
         padding: scale(16),
     },
     noteText: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         color: COLORS.TEXT_PRIMARY,
-        lineHeight: moderateScale(18),
+        lineHeight: moderateScale(15),
     },
     noteLabel: {
         color: '#D32F2F',
         fontWeight: '700',
     },
     policyLink: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         color: '#2196F3',
         fontWeight: '600',
         marginTop: verticalScale(8),
         textDecorationLine: 'underline',
     },
-    slideToPayContainer: {
+    placeOrderContainer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
         backgroundColor: COLORS.WHITE,
         paddingHorizontal: scale(16),
-        paddingTop: verticalScale(16),
+        paddingTop: verticalScale(12),
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.15,
+        shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 12,
     },
-    slideToPayWrapper: {
-        marginBottom: verticalScale(8),
-    },
-    slideToPayButton: {
+    placeOrderButton: {
+        backgroundColor: '#0C831F',
         borderRadius: scale(12),
-        paddingVertical: verticalScale(18),
-        paddingHorizontal: scale(20),
+        paddingVertical: verticalScale(12), // Reduced height
+        paddingHorizontal: scale(16),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -704,45 +704,28 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
-        elevation: 6,
+        elevation: 4,
     },
-    slideIconContainer: {
-        width: scale(44),
-        height: scale(44),
-        borderRadius: scale(22),
-        backgroundColor: 'rgba(255,255,255,0.25)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    slideIconCircle: {
-        width: scale(36),
-        height: scale(36),
-        borderRadius: scale(18),
-        backgroundColor: 'rgba(255,255,255,0.3)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    paymentInfo: {
-        flex: 1,
-        marginLeft: scale(16),
+    placeOrderContent: {
         alignItems: 'flex-start',
     },
-    slideToPayLabel: {
+    placeOrderTotal: {
         fontSize: moderateScale(13),
-        fontWeight: '500',
-        color: 'rgba(255,255,255,0.9)',
-        letterSpacing: 0.5,
-    },
-    slideToPayAmount: {
-        fontSize: moderateScale(22),
-        fontWeight: '800',
+        fontWeight: '700',
         color: COLORS.WHITE,
-        marginTop: verticalScale(2),
     },
-    slideHintContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: scale(12),
+    placeOrderTotalLabel: {
+        fontSize: moderateScale(8),
+        color: 'rgba(255,255,255,0.8)',
+        fontWeight: '600',
+    },
+    placeOrderText: {
+        fontSize: moderateScale(13),
+        fontWeight: '700',
+        color: COLORS.WHITE,
+        flex: 1,
+        textAlign: 'center',
+        marginLeft: -scale(40), // Offset to center text visually
     },
 });
 

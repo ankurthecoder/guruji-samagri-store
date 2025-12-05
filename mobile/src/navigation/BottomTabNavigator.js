@@ -7,16 +7,19 @@ import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import CartScreen from '../screens/CartScreen';
-import OrderAgainScreen from '../screens/OrderAgainScreen';
+import WishlistScreen from '../screens/WishlistScreen';
 import CategoriesScreen from '../screens/CategoriesScreen';
 import CategoryProductsScreen from '../screens/CategoryProductsScreen';
 import AccountScreen from '../screens/AccountScreen';
+import OrdersScreen from '../screens/OrdersScreen';
+import OrderDetailScreen from '../screens/OrderDetailScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useUIStore from '../stores/uiStore';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const CategoriesStack = createStackNavigator();
+const AccountStack = createStackNavigator();
 
 // Home Stack Navigator
 const HomeStackNavigator = () => {
@@ -37,6 +40,17 @@ const CategoriesStackNavigator = () => {
             <CategoriesStack.Screen name="CategoriesMain" component={CategoriesScreen} />
             <CategoriesStack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
         </CategoriesStack.Navigator>
+    );
+};
+
+// Account Stack Navigator
+const AccountStackNavigator = () => {
+    return (
+        <AccountStack.Navigator screenOptions={{ headerShown: false }}>
+            <AccountStack.Screen name="AccountMain" component={AccountScreen} />
+            <AccountStack.Screen name="Orders" component={OrdersScreen} />
+            <AccountStack.Screen name="OrderDetail" component={OrderDetailScreen} />
+        </AccountStack.Navigator>
     );
 };
 
@@ -105,8 +119,8 @@ const BottomTabNavigator = () => {
 
                     if (route.name === 'Home') {
                         iconName = focused ? 'home' : 'home-outline';
-                    } else if (route.name === 'Order Again') {
-                        iconName = focused ? 'bag-handle' : 'bag-handle-outline';
+                    } else if (route.name === 'Wishlist') {
+                        iconName = focused ? 'heart' : 'heart-outline';
                     } else if (route.name === 'Categories') {
                         iconName = focused ? 'grid' : 'grid-outline';
                     } else if (route.name === 'Account') {
@@ -118,9 +132,9 @@ const BottomTabNavigator = () => {
             })}
         >
             <Tab.Screen name="Home" component={HomeStackNavigator} />
-            <Tab.Screen name="Order Again" component={OrderAgainScreen} />
+            <Tab.Screen name="Wishlist" component={WishlistScreen} />
             <Tab.Screen name="Categories" component={CategoriesStackNavigator} />
-            <Tab.Screen name="Account" component={AccountScreen} />
+            <Tab.Screen name="Account" component={AccountStackNavigator} />
         </Tab.Navigator>
     );
 };

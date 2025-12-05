@@ -36,15 +36,15 @@ export const COLORS = {
 };
 
 export const SIZES = {
-    // Font Sizes - using moderateScale for balanced scaling
-    FONT_XS: moderateScale(10),
-    FONT_SM: moderateScale(12),
-    FONT_MD: moderateScale(14),
-    FONT_LG: moderateScale(16),
-    FONT_XL: moderateScale(18),
-    FONT_XXL: moderateScale(20),
-    FONT_TITLE: moderateScale(24),
-    FONT_HEADING: moderateScale(28),
+    // Font Sizes - using moderateScale for balanced scaling (Blinkit-style compact sizing)
+    FONT_XS: moderateScale(8),
+    FONT_SM: moderateScale(10),
+    FONT_MD: moderateScale(11),
+    FONT_LG: moderateScale(12),
+    FONT_XL: moderateScale(14),
+    FONT_XXL: moderateScale(16),
+    FONT_TITLE: moderateScale(18),
+    FONT_HEADING: moderateScale(20),
 
     // Spacing - using scale for horizontal/general spacing
     PADDING_XS: scale(4),

@@ -236,16 +236,16 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     variantText: {
-        fontSize: 11,
+        fontSize: 9,
         color: COLORS.TEXT_PRIMARY,
         fontWeight: '600',
     },
     productName: {
-        fontSize: 13,
+        fontSize: 11,
         fontWeight: '500',
         color: COLORS.TEXT_PRIMARY,
         marginBottom: 6,
-        lineHeight: 16,
+        lineHeight: 14,
     },
     ratingContainer: {
         flexDirection: 'row',
@@ -253,11 +253,11 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     stars: {
-        fontSize: 12,
+        fontSize: 10,
         marginRight: 4,
     },
     reviewCount: {
-        fontSize: 11,
+        fontSize: 9,
         color: COLORS.TEXT_SECONDARY,
     },
     deliveryBadge: {
@@ -271,11 +271,11 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     deliveryIcon: {
-        fontSize: 10,
+        fontSize: 8,
         marginRight: 3,
     },
     deliveryText: {
-        fontSize: 10,
+        fontSize: 8,
         fontWeight: '600',
         color: '#2E7D32',
     },
@@ -296,23 +296,23 @@ const styles = StyleSheet.create({
         marginRight: 6,
     },
     discountText: {
-        fontSize: 10,
+        fontSize: 8,
         fontWeight: '600',
         color: '#C62828',
     },
     price: {
-        fontSize: 15,
+        fontSize: 12,
         fontWeight: 'bold',
         color: COLORS.TEXT_PRIMARY,
         marginRight: 6,
     },
     mrp: {
-        fontSize: 12,
+        fontSize: 10,
         color: COLORS.TEXT_SECONDARY,
         textDecorationLine: 'line-through',
     },
     perUnitPrice: {
-        fontSize: 11,
+        fontSize: 9,
         color: COLORS.TEXT_SECONDARY,
     },
     addButton: {
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     addButtonText: {
-        fontSize: 13,
+        fontSize: 11,
         fontWeight: '700',
         color: '#2E7D32',
     },
@@ -350,32 +350,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     quantityButtonText: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '600',
         color: COLORS.WHITE,
     },
     quantityText: {
         flex: 1,
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: '700',
         color: COLORS.WHITE,
         textAlign: 'center',
     },
     variantCount: {
-        fontSize: 11,
+        fontSize: 9,
         color: COLORS.TEXT_SECONDARY,
         textAlign: 'center',
         marginBottom: 4,
     },
     variantOptionsText: {
-        fontSize: 10,
+        fontSize: 8,
         fontWeight: '600',
         color: '#2E7D32',
         textAlign: 'center',
         marginTop: 1,
     },
     stockWarning: {
-        fontSize: 11,
+        fontSize: 9,
         fontWeight: '600',
         color: '#F57C00',
         textAlign: 'center',

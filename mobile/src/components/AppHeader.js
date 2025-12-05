@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
         height: verticalScale(60), // Fixed height for top part
     },
     headerTitle: {
-        fontSize: moderateScale(22),
+        fontSize: moderateScale(18),
         fontWeight: '700',
         color: COLORS.WHITE,
         letterSpacing: 0.3,

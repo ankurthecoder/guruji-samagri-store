@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { verticalScale } from 'react-native-size-matters';
 import { COLORS, SIZES } from '../constants/colors';
 import CategoryCard from '../components/CategoryCard';
 import AppHeader from '../components/AppHeader';
@@ -37,10 +38,12 @@ const CategoriesScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
-            <AppHeader
-                title="Categories"
-                showSearch={true}
-            />
+            <View style={styles.headerContainer}>
+                <AppHeader
+                    title="Categories"
+                    showSearch={true}
+                />
+            </View>
 
             {/* Content */}
             <ScrollView
@@ -60,11 +63,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.BACKGROUND,
     },
+    headerContainer: {
+        zIndex: 10,
+        elevation: 10,
+        backgroundColor: COLORS.WHITE,
+    },
     content: {
         flex: 1,
     },
     scrollContent: {
         padding: SIZES.PADDING_XL,
+        paddingTop: verticalScale(130),
         paddingBottom: 100,
     },
     section: {
