@@ -14,6 +14,8 @@ import AccountScreen from '../screens/AccountScreen';
 import OrdersScreen from '../screens/OrdersScreen';
 import OrderDetailScreen from '../screens/OrderDetailScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import CouponsScreen from '../screens/CouponsScreen';
+import NotificationPreferencesScreen from '../screens/NotificationPreferencesScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useUIStore from '../stores/uiStore';
 
@@ -52,6 +54,8 @@ const AccountStackNavigator = () => {
             <AccountStack.Screen name="Orders" component={OrdersScreen} />
             <AccountStack.Screen name="OrderDetail" component={OrderDetailScreen} />
             <AccountStack.Screen name="EditProfile" component={EditProfileScreen} />
+            <AccountStack.Screen name="Coupons" component={CouponsScreen} />
+            <AccountStack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
         </AccountStack.Navigator>
     );
 };

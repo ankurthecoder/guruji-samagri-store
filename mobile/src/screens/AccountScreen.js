@@ -178,7 +178,7 @@ const AccountScreen = ({ navigation }) => {
                         <MenuItem
                             icon="notifications-outline"
                             title="Notifications"
-                            onPress={() => Alert.alert('Notifications', 'Notifications screen coming soon')}
+                            onPress={() => navigation.navigate('NotificationPreferences')}
                         />
                     </View>
                 </View>

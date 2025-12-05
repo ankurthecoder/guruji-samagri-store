@@ -175,7 +175,10 @@ const CartScreen = ({ navigation }) => {
                 <View style={styles.savingsCorner}>
                     <Text style={styles.savingsCornerTitle}>SAVINGS CORNER</Text>
 
-                    <TouchableOpacity style={styles.couponRow}>
+                    <TouchableOpacity
+                        style={styles.couponRow}
+                        onPress={() => navigation.navigate('Account', { screen: 'Coupons' })}
+                    >
                         <Ionicons name="pricetag" size={20} color="#2196F3" />
                         <Text style={styles.couponText}>Apply Coupon</Text>
                         <Ionicons name="chevron-forward" size={20} color={COLORS.TEXT_SECONDARY} style={styles.chevronIcon} />
