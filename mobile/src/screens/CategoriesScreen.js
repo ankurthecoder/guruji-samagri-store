@@ -1,12 +1,51 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, Animated } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { verticalScale } from 'react-native-size-matters';
 import { COLORS, SIZES } from '../constants/colors';
 import CategoryCard from '../components/CategoryCard';
 import AppHeader from '../components/AppHeader';
 import CATEGORIES from '../data/mockCategories';
+import useUIStore from '../stores/uiStore';
 
 const CategoriesScreen = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
+    const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
+    const lastContentOffset = useRef(0);
+    const isTabBarVisible = useRef(true);
+
+    // Calculate dynamic header height (same as HomeScreen and AppHeader)
+    const BASE_HEADER_HEIGHT = verticalScale(125);
+    const HEADER_MAX_HEIGHT = BASE_HEADER_HEIGHT + insets.top;
+
+    const scrollY = useRef(new Animated.Value(0)).current;
+
+    const handleScroll = Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        {
+            useNativeDriver: false,
+            listener: (event) => {
+                const currentOffset = event.nativeEvent.contentOffset.y;
+                const diff = currentOffset - lastContentOffset.current;
+
+                // Ignore small scrolls (bounce effect)
+                if (Math.abs(diff) < 3) return;
+
+                if (diff > 0 && isTabBarVisible.current && currentOffset > 50) {
+                    // Scrolling down & tab bar is visible -> Hide it
+                    setTabBarVisible(false);
+                    isTabBarVisible.current = false;
+                } else if (diff < 0 && !isTabBarVisible.current) {
+                    // Scrolling up & tab bar is hidden -> Show it
+                    setTabBarVisible(true);
+                    isTabBarVisible.current = true;
+                }
+
+                lastContentOffset.current = currentOffset;
+            }
+        }
+    );
+
     const handleCategoryPress = (category) => {
         navigation.navigate('CategoryProducts', { category });
     };
@@ -42,18 +81,27 @@ const CategoriesScreen = ({ navigation }) => {
                 <AppHeader
                     title="Categories"
                     showSearch={true}
+                    scrollY={scrollY}
                 />
             </View>
 
             {/* Content */}
-            <ScrollView
+            <Animated.ScrollView
                 style={styles.content}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingTop: HEADER_MAX_HEIGHT }
+                ]}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
             >
                 {renderCategorySection('Grocery & Kitchen', groceryKitchen)}
                 {renderCategorySection('Snacks & Drinks', snacksDrinks)}
-            </ScrollView>
+                {renderCategorySection('Snacks & Drinks', snacksDrinks)}
+                {renderCategorySection('Snacks & Drinks', snacksDrinks)}
+                {renderCategorySection('Snacks & Drinks', snacksDrinks)}
+            </Animated.ScrollView>
         </SafeAreaView>
     );
 };
@@ -73,7 +121,6 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: SIZES.PADDING_XL,
-        paddingTop: verticalScale(130),
         paddingBottom: 100,
     },
     section: {

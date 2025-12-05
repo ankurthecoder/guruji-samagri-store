@@ -26,7 +26,7 @@ import { COLORS, SIZES } from '../constants/colors';
  */
 const AnimatedSearchBar = ({
     rotatingTexts = ['puja samagri', 'bracelets', 'pendants', 'organic honey'],
-    rotationInterval = 2000,
+    rotationInterval = 3000,
     value = '',
     onChangeText,
     onSubmit,
@@ -37,7 +37,7 @@ const AnimatedSearchBar = ({
     const [nextIndex, setNextIndex] = useState(1);
     const [isFocused, setIsFocused] = useState(false);
 
-    // Animation for the sliding effect
+    // Animation for smooth vertical scrolling
     const slideAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -46,26 +46,26 @@ const AnimatedSearchBar = ({
             return;
         }
 
-        const rotateText = () => {
+        const animateText = () => {
             // Calculate next index
             const next = (currentIndex + 1) % rotatingTexts.length;
             setNextIndex(next);
 
-            // Animate slide up
+            // Smooth slide up animation
             Animated.timing(slideAnim, {
-                toValue: -1, // Slide up by full height
-                duration: 400, // Increased duration for smoothness
-                easing: Easing.out(Easing.ease), // Add easing for natural movement
+                toValue: 1, // Slide to next position
+                duration: 500, // Smooth transition
+                easing: Easing.out(Easing.cubic), // Smooth easing
                 useNativeDriver: true,
             }).start(() => {
                 // Update current index
                 setCurrentIndex(next);
-                // Reset animation value without animating
+                // Reset animation instantly for next cycle
                 slideAnim.setValue(0);
             });
         };
 
-        const interval = setInterval(rotateText, rotationInterval);
+        const interval = setInterval(animateText, rotationInterval);
 
         return () => clearInterval(interval);
     }, [isFocused, value, currentIndex, rotatingTexts.length, rotationInterval, slideAnim]);
@@ -87,20 +87,6 @@ const AnimatedSearchBar = ({
     // Show placeholder only when input is empty
     const showPlaceholder = !isFocused && value.length === 0;
 
-    // Calculate translateY for current and next text
-    // When slideAnim goes from 0 to -1:
-    // - Current text: 0 -> -100% (slides up and out)
-    // - Next text: 100% -> 0 (slides up into view)
-    const currentTranslateY = slideAnim.interpolate({
-        inputRange: [-1, 0],
-        outputRange: [-verticalScale(40), 0], // Responsive translation distance
-    });
-
-    const nextTranslateY = slideAnim.interpolate({
-        inputRange: [-1, 0],
-        outputRange: [0, verticalScale(40)], // Starts below, slides up to position
-    });
-
     return (
         <View style={[styles.searchContainer, containerStyle]}>
             {/* Custom Animated Placeholder */}
@@ -108,14 +94,23 @@ const AnimatedSearchBar = ({
                 <View style={styles.placeholderContainer} pointerEvents="none">
                     <Text style={styles.placeholderFixed}>Search for </Text>
 
-                    {/* Animated text container with overflow hidden */}
+                    {/* Animated vertical scrolling text container */}
                     <View style={styles.animatedTextContainer}>
                         {/* Current text - slides up and out */}
                         <Animated.Text
                             style={[
                                 styles.placeholderAnimated,
                                 {
-                                    transform: [{ translateY: currentTranslateY }],
+                                    transform: [{
+                                        translateY: slideAnim.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, -verticalScale(40)], // Slide up
+                                        })
+                                    }],
+                                    opacity: slideAnim.interpolate({
+                                        inputRange: [0, 0.5, 1],
+                                        outputRange: [1, 0.5, 0], // Fade out while sliding
+                                    }),
                                 },
                             ]}
                             numberOfLines={1}>
@@ -128,7 +123,16 @@ const AnimatedSearchBar = ({
                                 styles.placeholderAnimated,
                                 styles.placeholderNext,
                                 {
-                                    transform: [{ translateY: nextTranslateY }],
+                                    transform: [{
+                                        translateY: slideAnim.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [verticalScale(40), 0], // Slide up into view
+                                        })
+                                    }],
+                                    opacity: slideAnim.interpolate({
+                                        inputRange: [0, 0.5, 1],
+                                        outputRange: [0, 0.5, 1], // Fade in while sliding
+                                    }),
                                 },
                             ]}
                             numberOfLines={1}>
@@ -212,8 +216,8 @@ const styles = StyleSheet.create({
     placeholderNext: {
         position: 'absolute',
         top: 0,
-        left: 0, // Ensure alignment
-        right: 0, // Ensure alignment
+        left: 0,
+        right: 0,
     },
     inputWrapper: {
         flex: 1,

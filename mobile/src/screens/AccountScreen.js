@@ -63,7 +63,7 @@ const AccountScreen = ({ navigation }) => {
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Settings</Text>
+                <Text style={styles.headerTitle}>My Account</Text>
             </View>
 
             <ScrollView
@@ -71,6 +71,38 @@ const AccountScreen = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
+                {/* User Profile Card */}
+                <View style={styles.profileCard}>
+                    <View style={styles.profileHeader}>
+                        <View style={styles.avatarContainer}>
+                            <View style={styles.avatar}>
+                                <Ionicons name="person" size={32} color={COLORS.PRIMARY} />
+                            </View>
+                            <View style={styles.profileInfo}>
+                                <Text style={styles.userName}>{user?.name || 'Guest User'}</Text>
+                            </View>
+                        </View>
+                        <TouchableOpacity
+                            style={styles.editButton}
+                            onPress={() => navigation.navigate('EditProfile')}
+                        >
+                            <Ionicons name="create-outline" size={20} color={COLORS.PRIMARY} />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Contact Information */}
+                    <View style={styles.contactInfo}>
+                        <View style={styles.infoRow}>
+                            <Ionicons name="call-outline" size={18} color={COLORS.TEXT_SECONDARY} />
+                            <Text style={styles.infoText}>{user?.phone || '9911881520'}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Ionicons name="mail-outline" size={18} color={COLORS.TEXT_SECONDARY} />
+                            <Text style={styles.infoText}>{user?.email || 'gupta.ankur792@gmail.com'}</Text>
+                        </View>
+                    </View>
+                </View>
+
                 {/* Update Banner */}
                 <TouchableOpacity style={styles.updateBanner} activeOpacity={0.8}>
                     <View style={styles.updateLeft}>
@@ -203,6 +235,69 @@ const styles = StyleSheet.create({
         paddingHorizontal: scale(16),
         paddingVertical: verticalScale(16),
         marginTop: verticalScale(8),
+        marginHorizontal: scale(12),
+        borderRadius: scale(12),
+    },
+    profileCard: {
+        backgroundColor: COLORS.WHITE,
+        marginHorizontal: scale(12),
+        marginTop: verticalScale(12),
+        borderRadius: scale(12),
+        padding: scale(16),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    profileHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: verticalScale(16),
+    },
+    avatarContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    avatar: {
+        width: scale(56),
+        height: scale(56),
+        borderRadius: scale(28),
+        backgroundColor: `${COLORS.PRIMARY}15`,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: scale(12),
+    },
+    profileInfo: {
+        flex: 1,
+    },
+    userName: {
+        fontSize: moderateScale(16),
+        fontWeight: '700',
+        color: COLORS.BLACK,
+    },
+    editButton: {
+        width: scale(36),
+        height: scale(36),
+        borderRadius: scale(18),
+        backgroundColor: `${COLORS.PRIMARY}10`,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    contactInfo: {
+        gap: verticalScale(10),
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: scale(12),
+    },
+    infoText: {
+        fontSize: moderateScale(12),
+        color: COLORS.TEXT_SECONDARY,
+        flex: 1,
     },
     updateLeft: {
         flex: 1,
