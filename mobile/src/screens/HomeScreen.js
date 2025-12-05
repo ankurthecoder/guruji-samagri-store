@@ -112,6 +112,10 @@ const HomeScreen = ({ navigation }) => {
         setSelectedProduct(null);
     };
 
+    const handleOpenProductDetail = (product) => {
+        navigation.navigate('ProductDetail', { product });
+    };
+
     const handleAddVariant = (variantProduct) => {
         handleAddToCart(variantProduct, 1);
     };
@@ -186,8 +190,7 @@ const HomeScreen = ({ navigation }) => {
     };
 
     const handleViewCart = () => {
-        // TODO: Navigate to cart screen
-        Alert.alert('View Cart', `${totalItems} items - ₹${totalAmount}`);
+        navigation.navigate('Cart');
     };
 
     // Add wishlist status and cart quantity to products
@@ -235,6 +238,7 @@ const HomeScreen = ({ navigation }) => {
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
                     onOpenVariantModal={handleOpenVariantModal}
+                    onProductPress={handleOpenProductDetail}
                 />
 
                 {/* Relax and breathe easy - Masks & Air Purifiers */}
@@ -250,6 +254,7 @@ const HomeScreen = ({ navigation }) => {
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
                     onOpenVariantModal={handleOpenVariantModal}
+                    onProductPress={handleOpenProductDetail}
                 />
 
                 {/* Sweet and healthy - Honey */}
@@ -262,6 +267,7 @@ const HomeScreen = ({ navigation }) => {
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
                     onOpenVariantModal={handleOpenVariantModal}
+                    onProductPress={handleOpenProductDetail}
                 />
 
                 {/* Tea time essentials - Tea */}
@@ -274,6 +280,7 @@ const HomeScreen = ({ navigation }) => {
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
                     onOpenVariantModal={handleOpenVariantModal}
+                    onProductPress={handleOpenProductDetail}
                 />
 
                 {/* Fresh & Radiant - Face Wash */}
@@ -286,6 +293,7 @@ const HomeScreen = ({ navigation }) => {
                     onAddToCart={handleAddToCart}
                     onToggleWishlist={handleToggleWishlist}
                     onOpenVariantModal={handleOpenVariantModal}
+                    onProductPress={handleOpenProductDetail}
                 />
 
 

@@ -18,6 +18,7 @@ const CategorySection = ({
     onAddToCart,
     onToggleWishlist,
     onOpenVariantModal,
+    onProductPress,
 }) => {
     return (
         <View style={styles.section}>
@@ -43,6 +44,7 @@ const CategorySection = ({
                         onAddToCart={onAddToCart}
                         onToggleWishlist={onToggleWishlist}
                         onOpenVariantModal={onOpenVariantModal}
+                        onProductPress={onProductPress}
                     />
                 ))}
             </ScrollView>

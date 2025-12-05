@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
+import ProductDetailScreen from '../screens/ProductDetailScreen';
+import CartScreen from '../screens/CartScreen';
 import OrderAgainScreen from '../screens/OrderAgainScreen';
 import CategoriesScreen from '../screens/CategoriesScreen';
 import CategoryProductsScreen from '../screens/CategoryProductsScreen';
@@ -22,6 +24,8 @@ const HomeStackNavigator = () => {
         <HomeStack.Navigator screenOptions={{ headerShown: false }}>
             <HomeStack.Screen name="HomeMain" component={HomeScreen} />
             <HomeStack.Screen name="Search" component={SearchScreen} />
+            <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} />
+            <HomeStack.Screen name="Cart" component={CartScreen} />
         </HomeStack.Navigator>
     );
 };

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
 
-const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModal }) => {
+const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModal, onProductPress }) => {
     const {
         name,
         image,
@@ -52,7 +52,11 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModa
     const isLowStock = stock && stock <= 5;
 
     return (
-        <View style={styles.card}>
+        <TouchableOpacity
+            style={styles.card}
+            onPress={() => onProductPress?.(product)}
+            activeOpacity={0.9}
+        >
             {/* Image with Wishlist Heart */}
             <View style={styles.imageContainer}>
                 {image ? (
@@ -64,7 +68,10 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModa
                 )}
                 <TouchableOpacity
                     style={styles.wishlistButton}
-                    onPress={() => onToggleWishlist?.(product)}>
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        onToggleWishlist?.(product);
+                    }}>
                     <Text style={styles.wishlistIcon}>
                         {isWishlisted ? '❤️' : '♡'}
                     </Text>
@@ -120,20 +127,27 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModa
                     <View style={styles.quantityControls}>
                         <TouchableOpacity
                             style={styles.quantityButton}
-                            onPress={() => onAddToCart?.(product, -1)}>
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                onAddToCart?.(product, -1);
+                            }}>
                             <Text style={styles.quantityButtonText}>−</Text>
                         </TouchableOpacity>
                         <Text style={styles.quantityText}>{product.quantity}</Text>
                         <TouchableOpacity
                             style={styles.quantityButton}
-                            onPress={() => onAddToCart?.(product, 1)}>
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                onAddToCart?.(product, 1);
+                            }}>
                             <Text style={styles.quantityButtonText}>+</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
                     <TouchableOpacity
                         style={styles.addButton}
-                        onPress={() => {
+                        onPress={(e) => {
+                            e.stopPropagation();
                             if (product.variants && product.variants.length > 1) {
                                 onOpenVariantModal?.(product);
                             } else {
@@ -156,7 +170,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModa
                     <Text style={styles.stockWarning}>Only {stock} left</Text>
                 )}
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 

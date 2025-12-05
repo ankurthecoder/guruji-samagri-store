@@ -9,6 +9,7 @@ import {
     Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from '@react-navigation/native';
 
 import useUIStore from "../stores/uiStore";
 
@@ -18,8 +19,8 @@ const CartBubble = ({
     totalText = "View cart",
     subText = "0 items",
     thumbnails = ['https://picsum.photos/id/237/200/300', 'https://picsum.photos/seed/picsum/200/300', 'https://picsum.photos/id/237/200/300'],
-    onPress = () => { },
 }) => {
+    const navigation = useNavigation();
     const insets = useSafeAreaInsets();
     const isTabBarVisible = useUIStore(state => state.isTabBarVisible);
 
@@ -63,7 +64,7 @@ const CartBubble = ({
                 },
             ]}
         >
-            <Pressable style={styles.bubble} onPress={onPress}>
+            <Pressable style={styles.bubble} onPress={() => navigation.navigate('Cart')}>
                 <View style={styles.left}>
                     <View style={styles.thumbStack}>
                         {thumbToShow.map((uri, i) => (
