@@ -23,6 +23,7 @@ import useUIStore from '../stores/uiStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CarouselComponent from '../components/CarouselComponent';
 import BottomSheetHandler from '../components/BottomSheetHanlder';
+import ProductAdvertiser from '../components/ProductAdvertiser';
 
 
 const HomeScreen = ({ navigation }) => {
@@ -240,6 +241,24 @@ const HomeScreen = ({ navigation }) => {
                 scrollEventThrottle={16}>
 
                 <CarouselComponent data={data} />
+
+                {/* Product Advertiser Section */}
+                {/* <ProductAdvertiser ads={AD_DATA} /> */}
+
+                {/* TEST BUTTON: Open Location Access Screen */}
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: COLORS.ACCENT,
+                        margin: 16,
+                        padding: 12,
+                        borderRadius: 8,
+                        alignItems: 'center'
+                    }}
+                    onPress={() => navigation.navigate('LocationAccessScreen')}
+                >
+                    <Text style={{ fontWeight: 'bold', color: COLORS.BLACK }}> TEST: Open Location Access Screen </Text>
+                </TouchableOpacity>
+
                 {/* Glow up starts right here - Sunscreen */}
                 <CategorySection
                     title="Sunscreen Essentials"
