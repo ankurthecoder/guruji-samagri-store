@@ -13,7 +13,7 @@ import {
     Modal,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+//import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { COLORS } from '../constants/colors';
@@ -21,6 +21,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import useUIStore from '../stores/uiStore';
+
+let promptForEnableLocationIfNeeded;
+
+if (Platform.OS === 'android') {
+    promptForEnableLocationIfNeeded =
+        require('react-native-android-location-enabler')
+            .promptForEnableLocationIfNeeded;
+}
 
 const LocationSelectionBottomSheet = ({ visible, onClose, onSelectLocation, navigation }) => {
     const insets = useSafeAreaInsets();
@@ -104,62 +112,76 @@ const LocationSelectionBottomSheet = ({ visible, onClose, onSelectLocation, navi
     const handleEnableLocation = async () => {
         if (Platform.OS === 'android') {
             try {
+                // 1️⃣ Permission
                 const granted = await PermissionsAndroid.request(
                     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                     {
                         title: 'Location Permission',
-                        message: 'Guruji Samagri Store needs access to your location to show relevant stores and products.',
-                        buttonPositive: 'OK',
+                        message:
+                            'Guruji Samagri Store needs access to your location to show relevant stores and products.',
+                        buttonPositive: 'Allow',
                         buttonNegative: 'Cancel',
                     }
                 );
 
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    setLoading(true);
-                    try {
-                        const enableResult = await promptForEnableLocationIfNeeded();
-                        console.log('Location Enable Result:', enableResult);
-                        // Result can be "enabled" or "already-enabled"
-
-                        Geolocation.getCurrentPosition(
-                            (position) => {
-                                setLoading(false);
-                                setLocationEnabled(true);
-                                handleLocationFound(position);
-                            },
-                            (error) => {
-                                setLoading(false);
-                                console.log(error.code, error.message);
-                            },
-                            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-                        );
-                    } catch (error) {
-                        setLoading(false);
-                        console.log('Location Enable Error:', error);
-                        // User denied the system dialog or other error
+                if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                    if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+                        Linking.openSettings();
                     }
-                } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-                    // Only open settings if user permanently denied it
-                    Linking.openSettings();
-                } else {
-                    // Permission Denied (but not permanently)
-                    console.log('Location permission denied');
+                    return;
                 }
+
+                // 2️⃣ Blinkit-style GPS enable modal
+                try {
+                    await promptForEnableLocationIfNeeded({
+                        interval: 10000,
+                        fastInterval: 5000,
+                    });
+                } catch (e) {
+                    // User tapped "No thanks"
+                    return;
+                }
+
+                // 3️⃣ Get location
+                setLoading(true);
+                Geolocation.getCurrentPosition(
+                    (position) => {
+                        setLoading(false);
+                        setLocationEnabled(true);
+                        handleLocationFound(position);
+                    },
+                    (error) => {
+                        setLoading(false);
+                        console.log('Location error:', error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 10000,
+                    }
+                );
             } catch (error) {
-                console.error('Permission error:', error);
                 setLoading(false);
+                console.error('Location flow error:', error);
             }
         } else {
-            // iOS
+            // iOS (no system GPS modal exists)
             Geolocation.requestAuthorization();
+            setLoading(true);
             Geolocation.getCurrentPosition(
                 (position) => {
+                    setLoading(false);
                     handleLocationFound(position);
                 },
                 (error) => {
+                    setLoading(false);
                     console.log(error);
                 },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 10000,
+                }
             );
         }
     };

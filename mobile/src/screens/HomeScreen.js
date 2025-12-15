@@ -245,7 +245,7 @@ const HomeScreen = ({ navigation }) => {
                 {/* Product Advertiser Section */}
                 {/* <ProductAdvertiser ads={AD_DATA} /> */}
 
-                {/* TEST BUTTON: Open Location Access Screen */}
+                {/* TEST BUTTON: Open Refer & Earn Screen */}
                 <TouchableOpacity
                     style={{
                         backgroundColor: COLORS.ACCENT,
@@ -254,9 +254,9 @@ const HomeScreen = ({ navigation }) => {
                         borderRadius: 8,
                         alignItems: 'center'
                     }}
-                    onPress={() => navigation.navigate('LocationAccessScreen')}
+                    onPress={() => navigation.navigate('ReferAndEarnScreen')}
                 >
-                    <Text style={{ fontWeight: 'bold', color: COLORS.BLACK }}> TEST: Open Location Access Screen </Text>
+                    <Text style={{ fontWeight: 'bold', color: COLORS.BLACK }}> TEST: Open Refer & Earn Screen </Text>
                 </TouchableOpacity>
 
                 {/* Glow up starts right here - Sunscreen */}

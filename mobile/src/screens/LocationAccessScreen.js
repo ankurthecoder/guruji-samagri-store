@@ -14,7 +14,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { useNavigation } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
-import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+//import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+
+let promptForEnableLocationIfNeeded;
+
+if (Platform.OS === 'android') {
+    promptForEnableLocationIfNeeded =
+        require('react-native-android-location-enabler')
+            .promptForEnableLocationIfNeeded;
+}
 
 // Generic city illustration placeholder
 // In a real app, this would be a local asset or a specific URL
@@ -26,59 +34,76 @@ const LocationAccessScreen = () => {
     const handleEnableLocation = async () => {
         if (Platform.OS === 'android') {
             try {
-                // Request enablement (assuming permissions are handled or will be prompted)
-                // Integrating logic similar to LocationSearchScreen for consistency
-                // For this screen, we might just want to trigger the "Enable Location" flow
-                const enableResult = await promptForEnableLocationIfNeeded();
-                console.log('Location Enable Result:', enableResult);
-
-                Geolocation.getCurrentPosition(
-                    (position) => {
-                        const locationData = {
-                            placeId: 'current_location',
-                            description: 'Current Location',
-                            mainText: 'Current Location',
-                            geometry: {
-                                location: {
-                                    lat: position.coords.latitude,
-                                    lng: position.coords.longitude,
-                                }
-                            }
-                        };
-                        navigation.navigate('LocationConfirmRoot', {
-                            initialLocation: locationData
-                        });
-                    },
-                    (error) => {
-                        console.log(error.code, error.message);
-                    },
-                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+                // 1️⃣ Permission
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    {
+                        title: 'Location Permission',
+                        message:
+                            'Guruji Samagri Store needs access to your location to show relevant stores and products.',
+                        buttonPositive: 'Allow',
+                        buttonNegative: 'Cancel',
+                    }
                 );
 
+                if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                    if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+                        Linking.openSettings();
+                    }
+                    return;
+                }
+
+                // 2️⃣ Blinkit-style GPS enable modal
+                try {
+                    await promptForEnableLocationIfNeeded({
+                        interval: 10000,
+                        fastInterval: 5000,
+                    });
+                } catch (e) {
+                    // User tapped "No thanks"
+                    return;
+                }
+
+                // 3️⃣ Get location
+                setLoading(true);
+                Geolocation.getCurrentPosition(
+                    (position) => {
+                        setLoading(false);
+                        setLocationEnabled(true);
+                        handleLocationFound(position);
+                    },
+                    (error) => {
+                        setLoading(false);
+                        console.log('Location error:', error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 10000,
+                    }
+                );
             } catch (error) {
-                console.log('Location Enable Error:', error);
+                setLoading(false);
+                console.error('Location flow error:', error);
             }
         } else {
+            // iOS (no system GPS modal exists)
             Geolocation.requestAuthorization();
+            setLoading(true);
             Geolocation.getCurrentPosition(
                 (position) => {
-                    const locationData = {
-                        placeId: 'current_location',
-                        description: 'Current Location',
-                        mainText: 'Current Location',
-                        geometry: {
-                            location: {
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                            }
-                        }
-                    };
-                    navigation.navigate('LocationConfirmRoot', {
-                        initialLocation: locationData
-                    });
+                    setLoading(false);
+                    handleLocationFound(position);
                 },
-                (error) => console.log(error),
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+                (error) => {
+                    setLoading(false);
+                    console.log(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 10000,
+                }
             );
         }
     };

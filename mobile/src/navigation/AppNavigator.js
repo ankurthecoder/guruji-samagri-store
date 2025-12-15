@@ -13,6 +13,7 @@ import BottomTabNavigator from './BottomTabNavigator';
 import LocationConfirmScreen from '../screens/LocationConfirmScreen';
 import LocationSearchScreen from '../screens/LocationSearchScreen';
 import LocationAccessScreen from '../screens/LocationAccessScreen';
+import ReferAndEarnScreen from '../screens/ReferAndEarnScreen';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +40,7 @@ const AppNavigator = () => {
                         <Stack.Screen name="LocationConfirmRoot" component={LocationConfirmScreen} />
                         <Stack.Screen name="LocationSearchScreen" component={LocationSearchScreen} />
                         <Stack.Screen name="LocationAccessScreen" component={LocationAccessScreen} />
+                        <Stack.Screen name="ReferAndEarnScreen" component={ReferAndEarnScreen} />
                     </>
                 )}
             </Stack.Navigator>
