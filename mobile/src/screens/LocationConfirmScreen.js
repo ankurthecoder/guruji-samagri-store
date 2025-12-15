@@ -27,11 +27,13 @@ const LocationConfirmScreen = ({ navigation, route }) => {
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [locationEnabled, setLocationEnabled] = useState(false);
+    const { headerTitle, buttonText, initialLocation } = route.params || {};
+
     const [region, setRegion] = useState({
-        latitude: 28.6139, // Default to Delhi
-        longitude: 77.2090,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitude: initialLocation?.geometry?.location?.lat || 28.6139, // Use passed location or default to Delhi
+        longitude: initialLocation?.geometry?.location?.lng || 77.2090,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
     });
     const searchTimeout = useRef(null);
     const mapRef = useRef(null);
@@ -271,7 +273,7 @@ const LocationConfirmScreen = ({ navigation, route }) => {
         }
     ];
 
-    const { headerTitle, buttonText } = route.params || {};
+
 
     const [showAddressDetails, setShowAddressDetails] = useState(false);
 

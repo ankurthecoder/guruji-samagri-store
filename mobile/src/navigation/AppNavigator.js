@@ -11,6 +11,7 @@ import ProfileSetupScreen from '../screens/auth/ProfileSetupScreen';
 // Main Screens
 import BottomTabNavigator from './BottomTabNavigator';
 import LocationConfirmScreen from '../screens/LocationConfirmScreen';
+import LocationSearchScreen from '../screens/LocationSearchScreen';
 
 const Stack = createStackNavigator();
 
@@ -35,6 +36,7 @@ const AppNavigator = () => {
                     <>
                         <Stack.Screen name="Main" component={BottomTabNavigator} />
                         <Stack.Screen name="LocationConfirmRoot" component={LocationConfirmScreen} />
+                        <Stack.Screen name="LocationSearchScreen" component={LocationSearchScreen} />
                     </>
                 )}
             </Stack.Navigator>
