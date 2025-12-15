@@ -12,6 +12,8 @@ import {
     Linking,
     Modal,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
+import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { COLORS } from '../constants/colors';
@@ -106,25 +108,81 @@ const LocationSelectionBottomSheet = ({ visible, onClose, onSelectLocation, navi
                     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                     {
                         title: 'Location Permission',
-                        message: 'This app needs access to your location for better delivery experience',
+                        message: 'Guruji Samagri Store needs access to your location to show relevant stores and products.',
                         buttonPositive: 'OK',
                         buttonNegative: 'Cancel',
                     }
                 );
 
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    setLocationEnabled(true);
-                    // Get current location here if needed
-                } else {
-                    // Open app settings
+                    setLoading(true);
+                    try {
+                        const enableResult = await promptForEnableLocationIfNeeded();
+                        console.log('Location Enable Result:', enableResult);
+                        // Result can be "enabled" or "already-enabled"
+
+                        Geolocation.getCurrentPosition(
+                            (position) => {
+                                setLoading(false);
+                                setLocationEnabled(true);
+                                handleLocationFound(position);
+                            },
+                            (error) => {
+                                setLoading(false);
+                                console.log(error.code, error.message);
+                            },
+                            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+                        );
+                    } catch (error) {
+                        setLoading(false);
+                        console.log('Location Enable Error:', error);
+                        // User denied the system dialog or other error
+                    }
+                } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+                    // Only open settings if user permanently denied it
                     Linking.openSettings();
+                } else {
+                    // Permission Denied (but not permanently)
+                    console.log('Location permission denied');
                 }
             } catch (error) {
                 console.error('Permission error:', error);
+                setLoading(false);
             }
         } else {
-            // iOS - request permission
+            // iOS
             Geolocation.requestAuthorization();
+            Geolocation.getCurrentPosition(
+                (position) => {
+                    handleLocationFound(position);
+                },
+                (error) => {
+                    console.log(error);
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        }
+    };
+
+    const handleLocationFound = (position) => {
+        // Here we would ideally reverse geocode to get address details
+        // For now, we simulate a selection object similar to Google Places
+        if (onSelectLocation) {
+            console.log(position);
+            // We can use a geocoding API here or just pass coordinates
+            // Passing coordinates and letting parent handle or passing a "Current Location" placeholder
+            onSelectLocation({
+                placeId: 'current_location',
+                description: 'Current Location',
+                mainText: 'Current Location',
+                geometry: {
+                    location: {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    }
+                }
+            });
+            onClose();
         }
     };
 
