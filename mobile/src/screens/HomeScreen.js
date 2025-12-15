@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -23,6 +23,8 @@ import useUIStore from '../stores/uiStore';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CarouselComponent from '../components/CarouselComponent';
 import BottomSheetHandler from '../components/BottomSheetHanlder';
+import LocationPermissionModal from '../components/LocationPermissionModal';
+import LocationSelectionBottomSheet from '../components/LocationSelectionBottomSheet';
 
 const HomeScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
@@ -30,9 +32,29 @@ const HomeScreen = ({ navigation }) => {
     const [wishlistedItems, setWishlistedItems] = useState({});
     const [variantModalVisible, setVariantModalVisible] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [showLocationPermission, setShowLocationPermission] = useState(false);
+    const [showLocationSelection, setShowLocationSelection] = useState(false);
+    const [selectedAddress, setSelectedAddress] = useState({
+        title: 'HOME',
+        description: 'Floor 4, F 215 top floor managal bazar road, laxmi nagar'
+    });
     const setTabBarVisible = useUIStore(state => state.setTabBarVisible);
     const lastContentOffset = useRef(0);
     const isTabBarVisible = useRef(true);
+
+    // Check location permission on mount
+    useEffect(() => {
+        // Simulate checking if location permission is needed
+        // In real app, check if user has granted permission
+        const checkLocationPermission = async () => {
+            // For demo, show modal after 2 seconds
+            setTimeout(() => {
+                setShowLocationPermission(true);
+            }, 2000);
+        };
+
+        checkLocationPermission();
+    }, []);
 
     // Calculate dynamic header height (same logic as AppHeader)
     const BASE_HEADER_HEIGHT = verticalScale(125);
@@ -205,6 +227,29 @@ const HomeScreen = ({ navigation }) => {
         });
     };
 
+    // Location modal handlers
+    const handleEnableLocation = () => {
+        setShowLocationPermission(false);
+        // Request location permission here
+        // For now, just show the selection bottom sheet
+        setShowLocationSelection(true);
+    };
+
+    const handleSelectManually = () => {
+        setShowLocationPermission(false);
+        setShowLocationSelection(true);
+    };
+
+    const handleSelectLocation = (location) => {
+        console.log('Selected location:', location);
+        // Save the location and close modals
+        setSelectedAddress({
+            title: location.mainText || 'Selected Location',
+            description: location.description || location.address
+        });
+        setShowLocationSelection(false);
+    };
+
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -217,7 +262,27 @@ const HomeScreen = ({ navigation }) => {
                 onSearchSubmit={handleSearch}
                 onSearchPress={() => navigation.navigate('Search')}
                 scrollY={scrollY}
+                selectedAddress={selectedAddress}
+                onAddressPress={() => setShowLocationSelection(true)}
             />
+
+            {/* Location Permission Modal */}
+            {/* <LocationPermissionModal
+                visible={showLocationPermission}
+                onEnableLocation={handleEnableLocation}
+                onSelectManually={handleSelectManually}
+                onClose={() => setShowLocationPermission(false)}
+            /> */}
+
+            {/* Location Selection Bottom Sheet */}
+            {showLocationSelection && (
+                <LocationSelectionBottomSheet
+                    visible={showLocationSelection}
+                    onClose={() => setShowLocationSelection(false)}
+                    onSelectLocation={handleSelectLocation}
+                    navigation={navigation}
+                />
+            )}
 
             {/* Content */}
             <ScrollView

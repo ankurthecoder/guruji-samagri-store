@@ -6,6 +6,7 @@ import { COLORS, SIZES } from '../constants/colors';
 import AnimatedSearchBar from './AnimatedSearchBar';
 import useAuthStore from '../stores/authStore';
 import useCartStore from '../stores/cartStore';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const AppHeader = ({
     title = 'Guruji Samagri Store',
@@ -15,6 +16,8 @@ const AppHeader = ({
     onSearchChange,
     onSearchSubmit,
     scrollY,
+    selectedAddress,
+    onAddressPress,
 }) => {
     const insets = useSafeAreaInsets();
     const user = useAuthStore(state => state.user);
@@ -57,10 +60,30 @@ const AppHeader = ({
                     opacity: topInfoOpacity
                 }
             ]}>
-                <View>
-                    <Text style={styles.headerTitle}>{title}</Text>
-                    <Text style={styles.headerSubtitle}>Hi, {user?.name || 'User'}!</Text>
-                </View>
+                {selectedAddress ? (
+                    <TouchableOpacity
+                        style={styles.addressContainer}
+                        onPress={onAddressPress}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.brandLabel}>Guruji Samagri Store</Text>
+                        <View style={styles.addressRow}>
+                            <Text style={styles.addressText} numberOfLines={1}>
+                                <Text style={styles.addressTitle}>{selectedAddress.title || 'HOME'}</Text>
+                                <Text style={styles.addressDescription}>
+                                    {selectedAddress.description ? ` - ${selectedAddress.description}` : ' - Select Location'}
+                                </Text>
+                            </Text>
+                            <Ionicons name="caret-down" size={14} color={COLORS.WHITE} style={styles.caretIcon} />
+                        </View>
+                    </TouchableOpacity>
+                ) : (
+                    <View>
+                        <Text style={styles.headerTitle}>{title}</Text>
+                        <Text style={styles.headerSubtitle}>Hi, {user?.name || 'User'}!</Text>
+                    </View>
+                )}
+
                 <TouchableOpacity
                     style={styles.cartButton}
                     onPress={() => Alert.alert('Cart', 'Cart feature coming soon')}
@@ -143,6 +166,41 @@ const styles = StyleSheet.create({
         opacity: 0.95,
         marginTop: 2,
         fontWeight: '400',
+    },
+    // Address Styles
+    addressContainer: {
+        flex: 1,
+        marginRight: SIZES.PADDING_MD,
+        justifyContent: 'center',
+    },
+    brandLabel: {
+        fontSize: moderateScale(18), // Increased from 10
+        fontWeight: '700',
+        color: COLORS.WHITE,
+        opacity: 0.95,
+        marginBottom: verticalScale(3),
+        letterSpacing: 0.5,
+    },
+    addressRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    addressText: {
+        flex: 1,
+        marginRight: scale(4),
+    },
+    addressTitle: {
+        fontSize: moderateScale(12), // Reduced from 16
+        fontWeight: '800',
+        color: COLORS.WHITE,
+    },
+    addressDescription: {
+        fontSize: moderateScale(12),
+        color: COLORS.WHITE,
+        fontWeight: '500',
+    },
+    caretIcon: {
+        marginTop: verticalScale(1),
     },
     cartButton: {
         position: 'relative',

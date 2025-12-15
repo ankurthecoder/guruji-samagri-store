@@ -16,6 +16,7 @@ import OrderDetailScreen from '../screens/OrderDetailScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CouponsScreen from '../screens/CouponsScreen';
 import NotificationPreferencesScreen from '../screens/NotificationPreferencesScreen';
+// LocationConfirmScreen moved to AppNavigator
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useUIStore from '../stores/uiStore';
 
@@ -32,6 +33,7 @@ const HomeStackNavigator = () => {
             <HomeStack.Screen name="Search" component={SearchScreen} />
             <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} />
             <HomeStack.Screen name="Cart" component={CartScreen} />
+            {/* LocationConfirm moved to AppNavigator */}
         </HomeStack.Navigator>
     );
 };
@@ -46,6 +48,10 @@ const CategoriesStackNavigator = () => {
     );
 };
 
+import MyAddressesScreen from '../screens/MyAddressesScreen';
+
+// ... (existing imports)
+
 // Account Stack Navigator
 const AccountStackNavigator = () => {
     return (
@@ -56,6 +62,8 @@ const AccountStackNavigator = () => {
             <AccountStack.Screen name="EditProfile" component={EditProfileScreen} />
             <AccountStack.Screen name="Coupons" component={CouponsScreen} />
             <AccountStack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
+            <AccountStack.Screen name="MyAddresses" component={MyAddressesScreen} />
+            {/* LocationConfirm moved to AppNavigator */}
         </AccountStack.Navigator>
     );
 };

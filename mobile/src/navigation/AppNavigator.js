@@ -10,6 +10,7 @@ import ProfileSetupScreen from '../screens/auth/ProfileSetupScreen';
 
 // Main Screens
 import BottomTabNavigator from './BottomTabNavigator';
+import LocationConfirmScreen from '../screens/LocationConfirmScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,7 +32,10 @@ const AppNavigator = () => {
                     <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
                 ) : (
                     // Main App
-                    <Stack.Screen name="Main" component={BottomTabNavigator} />
+                    <>
+                        <Stack.Screen name="Main" component={BottomTabNavigator} />
+                        <Stack.Screen name="LocationConfirmRoot" component={LocationConfirmScreen} />
+                    </>
                 )}
             </Stack.Navigator>
         </NavigationContainer>

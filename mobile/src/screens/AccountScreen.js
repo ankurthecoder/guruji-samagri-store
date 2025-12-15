@@ -6,6 +6,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Alert,
+    Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
@@ -37,6 +38,33 @@ const AccountScreen = ({ navigation }) => {
                 }
             ]
         );
+    };
+
+    const handleShareApp = async () => {
+        try {
+            const message = `🕉️ *Guruji Samagri Store* 🙏\n\nDiscover authentic spiritual products for your pooja needs!\n\n✨ Features:\n• Wide range of pooja items\n• Fast & reliable delivery\n• Quality assured products\n• Easy ordering process\n\nDownload the app now and get started!\n\n📱 Download: [App Link]\n\n🌺 Har Har Mahadev! 🌺`;
+
+            const result = await Share.share({
+                message: message,
+                title: 'Share Guruji Samagri Store',
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // Shared via activity type
+                    console.log('Shared via:', result.activityType);
+                } else {
+                    // Shared successfully
+                    console.log('Shared successfully');
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // Dismissed
+                console.log('Share dismissed');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Unable to share the app. Please try again.');
+            console.error('Share error:', error);
+        }
     };
 
     const MenuItem = ({ icon, title, subtitle, onPress, badge }) => (
@@ -146,7 +174,7 @@ const AccountScreen = ({ navigation }) => {
                             icon="location-outline"
                             title="Saved Addresses"
                             subtitle="2 Addresses"
-                            onPress={() => Alert.alert('Addresses', 'Saved Addresses screen coming soon')}
+                            onPress={() => navigation.navigate('MyAddresses')}
                         />
                         <MenuItem
                             icon="person-outline"
@@ -174,6 +202,11 @@ const AccountScreen = ({ navigation }) => {
                             icon="star-outline"
                             title="Suggest Products"
                             onPress={() => Alert.alert('Suggest', 'Suggest Products screen coming soon')}
+                        />
+                        <MenuItem
+                            icon="share-social-outline"
+                            title="Share the App"
+                            onPress={handleShareApp}
                         />
                         <MenuItem
                             icon="notifications-outline"
