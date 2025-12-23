@@ -12,13 +12,18 @@ import {
 } from 'react-native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Animated } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
 import AccordionSection from '../components/AccordionSection';
 import ImageLightbox from '../components/ImageLightbox';
 import useCartStore from '../stores/cartStore';
 import CartBubble from '../components/ViewCart';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
+
+// Create animated version of Ionicons
+const AnimatedIcon = Animated.createAnimatedComponent(Ionicons);
 
 /**
  * ProductDetailScreen
@@ -31,6 +36,31 @@ const ProductDetailScreen = ({ route, navigation }) => {
     const [lightboxVisible, setLightboxVisible] = useState(false);
     const [selectedVariant, setSelectedVariant] = useState(product?.variant || '300 g');
     const [detailsExpanded, setDetailsExpanded] = useState(false);
+
+    // Animation
+    const scrollY = React.useRef(new Animated.Value(0)).current;
+
+    // Background image opacity (fades out on scroll)
+    const backgroundImageOpacity = scrollY.interpolate({
+        inputRange: [0, verticalScale(200)],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
+
+    // Header white background opacity (fades in on scroll)
+    const headerWhiteOpacity = scrollY.interpolate({
+        inputRange: [verticalScale(100), verticalScale(200)],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+    });
+
+    // Back button icon color (white to dark)
+    const backIconColor = scrollY.interpolate({
+        inputRange: [0, verticalScale(150)],
+        outputRange: ['#FFFFFF', COLORS.TEXT_PRIMARY],
+        extrapolate: 'clamp',
+    });
+
 
     const addItem = useCartStore(state => state.addItem);
     const cartItems = useCartStore(state => state.items);
@@ -136,25 +166,88 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor={COLORS.WHITE} />
+            <StatusBar
+                barStyle="light-content"
+                translucent
+                backgroundColor="transparent"
+            />
 
-            {/* Close Button */}
-            <TouchableOpacity
-                style={[styles.closeButton, { top: insets.top + verticalScale(10) }]}
-                onPress={() => navigation.goBack()}
-                activeOpacity={0.7}
+            {/* Background Product Image - extends behind status bar */}
+            <Animated.View
+                style={[
+                    styles.backgroundImageContainer,
+                    {
+                        opacity: backgroundImageOpacity,
+                    }
+                ]}
             >
-                <Text style={styles.closeIcon}>✕</Text>
-            </TouchableOpacity>
+                <Image
+                    source={{ uri: productImages[0] }}
+                    style={styles.fullBackgroundImage}
+                />
+            </Animated.View>
+
+            {/* Subtle Overlay at top that fades in as user scrolls down */}
+            <Animated.View
+                style={[
+                    styles.backgroundOverlay,
+                    {
+                        opacity: scrollY.interpolate({
+                            inputRange: [0, verticalScale(100), verticalScale(160)],
+                            outputRange: [0, 1, 0],
+                            extrapolate: 'clamp',
+                        })
+                    }
+                ]}
+            />
+
+            {/* Animated White Header (fades in on scroll) */}
+            <Animated.View
+                style={[
+                    styles.animatedHeader,
+                    {
+                        height: insets.top + verticalScale(50),
+                        opacity: headerWhiteOpacity,
+                        backgroundColor: COLORS.WHITE,
+                        paddingTop: insets.top,
+                    }
+                ]}
+            >
+                <Text style={styles.headerTitleText} numberOfLines={1}>{product.name}</Text>
+            </Animated.View>
+
+            {/* Back Button */}
+            <Animated.View
+                style={[styles.backButton, { top: insets.top + verticalScale(10) }]}
+            >
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    activeOpacity={0.7}
+                    style={styles.backButtonTouchable}
+                >
+                    <AnimatedIcon
+                        name="arrow-back"
+                        size={24}
+                        color={backIconColor}
+                    />
+                </TouchableOpacity>
+            </Animated.View>
 
             {/* Scrollable Content */}
-            <ScrollView
+            < Animated.ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
                 bounces={true}
+                onScroll={
+                    Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: true }
+                    )
+                }
+                scrollEventThrottle={16}
             >
                 {/* Image Carousel */}
-                <View style={styles.imageCarouselContainer}>
+                < View style={styles.imageCarouselContainer} >
                     <ScrollView
                         horizontal
                         pagingEnabled
@@ -182,51 +275,57 @@ const ProductDetailScreen = ({ route, navigation }) => {
                     </ScrollView>
 
                     {/* Image Dots */}
-                    {productImages.length > 1 && (
-                        <View style={styles.dotsContainer}>
-                            {productImages.map((_, index) => (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.dot,
-                                        currentImageIndex === index && styles.activeDot,
-                                    ]}
-                                />
-                            ))}
-                        </View>
-                    )}
-
-                    {/* Delivery Time Badge */}
-                    {product.deliveryTime && (
-                        <View style={styles.deliveryBadge}>
-                            <Text style={styles.deliveryIcon}>⏱</Text>
-                            <Text style={styles.deliveryText}>
-                                {product.deliveryTime} MINS
-                            </Text>
-                        </View>
-                    )}
-                </View>
-
-                {/* Product Info Section */}
-                <View style={styles.infoSection}>
-                    {/* Title */}
-                    <Text style={styles.productTitle}>{product.name}</Text>
-
-                    {/* Rating & Reviews */}
-                    {product.rating && (
-                        <View style={styles.ratingContainer}>
-                            <View style={styles.starsContainer}>
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Text key={star} style={styles.star}>
-                                        {star <= Math.floor(product.rating) ? '⭐' : '☆'}
-                                    </Text>
+                    {
+                        productImages.length > 1 && (
+                            <View style={styles.dotsContainer}>
+                                {productImages.map((_, index) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.dot,
+                                            currentImageIndex === index && styles.activeDot,
+                                        ]}
+                                    />
                                 ))}
                             </View>
-                            <Text style={styles.reviewCount}>
-                                ({product.reviewCount?.toLocaleString()})
-                            </Text>
-                        </View>
-                    )}
+                        )
+                    }
+
+                    {/* Delivery Time Badge */}
+                    {
+                        product.deliveryTime && (
+                            <View style={styles.deliveryBadge}>
+                                <Text style={styles.deliveryIcon}>⏱</Text>
+                                <Text style={styles.deliveryText}>
+                                    {product.deliveryTime} MINS
+                                </Text>
+                            </View>
+                        )
+                    }
+                </View >
+
+                {/* Product Info Section */}
+                < View style={styles.infoSection} >
+                    {/* Title */}
+                    < Text style={styles.productTitle} > {product.name}</Text >
+
+                    {/* Rating & Reviews */}
+                    {
+                        product.rating && (
+                            <View style={styles.ratingContainer}>
+                                <View style={styles.starsContainer}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Text key={star} style={styles.star}>
+                                            {star <= Math.floor(product.rating) ? '⭐' : '☆'}
+                                        </Text>
+                                    ))}
+                                </View>
+                                <Text style={styles.reviewCount}>
+                                    ({product.reviewCount?.toLocaleString()})
+                                </Text>
+                            </View>
+                        )
+                    }
 
                     {/* Price Section */}
                     <View style={styles.priceSection}>
@@ -287,39 +386,41 @@ const ProductDetailScreen = ({ route, navigation }) => {
                     </TouchableOpacity>
 
                     {/* Accordion Sections - Only show when expanded */}
-                    {detailsExpanded && (
-                        <View style={styles.accordionsContainer}>
-                            <AccordionSection title="Highlights" defaultExpanded={true}>
-                                <View style={styles.highlightsTable}>
-                                    {Object.entries(highlights).map(([key, value], index) => (
-                                        <View key={index} style={styles.highlightsRow}>
-                                            <Text style={styles.highlightsLabel}>{key}</Text>
-                                            <Text style={styles.highlightsValue}>{value}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </AccordionSection>
+                    {
+                        detailsExpanded && (
+                            <View style={styles.accordionsContainer}>
+                                <AccordionSection title="Highlights" defaultExpanded={true}>
+                                    <View style={styles.highlightsTable}>
+                                        {Object.entries(highlights).map(([key, value], index) => (
+                                            <View key={index} style={styles.highlightsRow}>
+                                                <Text style={styles.highlightsLabel}>{key}</Text>
+                                                <Text style={styles.highlightsValue}>{value}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </AccordionSection>
 
-                            <AccordionSection title="Nutritional Information">
-                                <View style={styles.nutritionTable}>
-                                    {nutritionalInfo.map((item, index) => (
-                                        <View key={index} style={styles.nutritionRow}>
-                                            <Text style={styles.nutritionLabel}>{item.label}</Text>
-                                            <Text style={styles.nutritionValue}>{item.value}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </AccordionSection>
-                        </View>
-                    )}
+                                <AccordionSection title="Nutritional Information">
+                                    <View style={styles.nutritionTable}>
+                                        {nutritionalInfo.map((item, index) => (
+                                            <View key={index} style={styles.nutritionRow}>
+                                                <Text style={styles.nutritionLabel}>{item.label}</Text>
+                                                <Text style={styles.nutritionValue}>{item.value}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </AccordionSection>
+                            </View>
+                        )
+                    }
 
                     {/* Bottom Spacer for sticky bar */}
                     <View style={styles.bottomSpacer} />
-                </View>
-            </ScrollView>
+                </View >
+            </Animated.ScrollView >
 
             {/* Sticky Bottom Bar */}
-            <View style={[styles.stickyBar, { paddingBottom: verticalScale(12) + insets.bottom }]}>
+            < View style={[styles.stickyBar, { paddingBottom: verticalScale(12) + insets.bottom }]} >
                 <View style={styles.stickyBarLeft}>
                     <Text style={styles.stickyVariant}>{selectedVariant}</Text>
                     <Text style={styles.stickyPrice}>₹{product.price}</Text>
@@ -327,34 +428,36 @@ const ProductDetailScreen = ({ route, navigation }) => {
                 </View>
 
                 {/* ADD Button or Quantity Controls */}
-                {cartQuantity > 0 ? (
-                    <View style={styles.quantityControls}>
+                {
+                    cartQuantity > 0 ? (
+                        <View style={styles.quantityControls}>
+                            <TouchableOpacity
+                                style={styles.quantityButton}
+                                onPress={() => handleAddToCart(-1)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.quantityButtonText}>−</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.quantityText}>{cartQuantity}</Text>
+                            <TouchableOpacity
+                                style={styles.quantityButton}
+                                onPress={() => handleAddToCart(1)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.quantityButtonText}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
                         <TouchableOpacity
-                            style={styles.quantityButton}
-                            onPress={() => handleAddToCart(-1)}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={styles.quantityButtonText}>−</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.quantityText}>{cartQuantity}</Text>
-                        <TouchableOpacity
-                            style={styles.quantityButton}
+                            style={styles.addToCartButton}
                             onPress={() => handleAddToCart(1)}
-                            activeOpacity={0.7}
+                            activeOpacity={0.8}
                         >
-                            <Text style={styles.quantityButtonText}>+</Text>
+                            <Text style={styles.addToCartText}>ADD</Text>
                         </TouchableOpacity>
-                    </View>
-                ) : (
-                    <TouchableOpacity
-                        style={styles.addToCartButton}
-                        onPress={() => handleAddToCart(1)}
-                        activeOpacity={0.8}
-                    >
-                        <Text style={styles.addToCartText}>ADD</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
+                    )
+                }
+            </View >
 
             {/* Cart Bubble - Shows when cart has items */}
             {totalItems > 0 && <CartBubble />}
@@ -366,7 +469,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
                 initialIndex={currentImageIndex}
                 onClose={() => setLightboxVisible(false)}
             />
-        </View>
+        </View >
     );
 };
 
@@ -716,6 +819,80 @@ const styles = StyleSheet.create({
         color: COLORS.WHITE,
         textAlign: 'center',
         minWidth: scale(30),
+    },
+    animatedHeader: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: scale(60), // Space for back button and other side
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.BORDER,
+        overflow: 'hidden',
+    },
+    blurContainer: {
+        ...StyleSheet.absoluteFillObject,
+        overflow: 'hidden',
+    },
+    headerBackgroundImage: {
+        ...StyleSheet.absoluteFillObject,
+        opacity: 0.3,
+    },
+    headerOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    },
+    headerTitleText: {
+        fontSize: moderateScale(14),
+        fontWeight: '700',
+        color: COLORS.TEXT_PRIMARY,
+        flex: 1,
+        textAlign: 'center',
+    },
+    // Background image that extends behind status bar
+    backgroundImageContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: verticalScale(300),
+        zIndex: 1,
+    },
+    fullBackgroundImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    backgroundOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: verticalScale(100),
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        zIndex: 2,
+    },
+    // Back button
+    backButton: {
+        position: 'absolute',
+        left: scale(16),
+        zIndex: 10,
+    },
+    backButtonTouchable: {
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        width: scale(40),
+        height: scale(40),
+        borderRadius: scale(20),
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: verticalScale(2) },
+        shadowOpacity: 0.1,
+        shadowRadius: scale(4),
+        elevation: 3,
     },
 });
 

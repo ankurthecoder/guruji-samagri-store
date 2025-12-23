@@ -13,7 +13,7 @@ export const FIREBASE_CONFIG = {
 // App Constants
 export const APP_NAME = 'Guruji Samagri Store';
 export const PHONE_NUMBER_LENGTH = 10;
-export const OTP_LENGTH = 6;
+export const OTP_LENGTH = 4;
 export const COUNTRY_CODE = '+91';
 
 // Categories

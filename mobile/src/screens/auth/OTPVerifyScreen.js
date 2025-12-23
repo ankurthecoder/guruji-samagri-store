@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -18,67 +18,53 @@ import useAuthStore from '../../stores/authStore';
 
 const OTPVerifyScreen = ({ navigation, route }) => {
     const { phoneNumber, confirmation } = route.params;
-    const [otp, setOtp] = useState('');
+    const [otp, setOtp] = useState(['', '', '', '']);
     const [loading, setLoading] = useState(false);
     const setAuth = useAuthStore(state => state.setAuth);
+    const inputRefs = useRef([]);
+
+    useEffect(() => {
+        // Clear OTP on mount
+        setOtp(['', '', '', '']);
+    }, []);
+
+    const handleChangeText = (text, index) => {
+        const newOtp = [...otp];
+        newOtp[index] = text;
+        setOtp(newOtp);
+
+        // Move to next input if text is entered
+        if (text && index < OTP_LENGTH - 1) {
+            inputRefs.current[index + 1].focus();
+        }
+    };
+
+    const handleKeyPress = (e, index) => {
+        // Move to previous input on backspace if current input is empty
+        if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+            inputRefs.current[index - 1].focus();
+        }
+    };
 
     const handleVerifyOTP = async () => {
-        if (otp.length !== OTP_LENGTH) {
-            Alert.alert('Invalid OTP', 'Please enter a 6-digit OTP');
+        const fullOtp = otp.join('');
+        if (fullOtp.length !== OTP_LENGTH) {
+            Alert.alert('Invalid OTP', 'Please enter a 4-digit OTP');
             return;
         }
 
         setLoading(true);
 
-        // BYPASS: Firebase & Backend disabled for testing - uncomment below for production
-        /*
-        try {
-            // Verify OTP with Firebase
-            const firebaseResult = await verifyOTP(confirmation, otp);
-
-            if (!firebaseResult.success) {
-                Alert.alert('Invalid OTP', firebaseResult.error || 'Please try again');
-                setLoading(false);
-                return;
-            }
-
-            // Verify with backend and get user data
-            const backendResult = await verifyOTPWithBackend(firebaseResult.idToken);
-
-            if (backendResult.success) {
-                // Save auth data to store
-                setAuth({
-                    user: backendResult.user,
-                    token: backendResult.token,
-                    needsProfileSetup: backendResult.needsProfileSetup,
-                });
-
-                // Navigate based on profile status
-                if (backendResult.needsProfileSetup) {
-                    navigation.replace('ProfileSetup');
-                } else {
-                    navigation.replace('Main');
-                }
-            }
-        } catch (error) {
-            Alert.alert('Error', error.message || 'Verification failed. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-        */
-
-        // TESTING MODE: Direct navigation without Firebase/Backend
+        // BYPASS: Firebase & Backend disabled for testing
         setTimeout(() => {
             setLoading(false);
-            // Mock auth data for testing
             setAuth({
                 user: { phoneNumber, name: 'Test User' },
                 token: 'mock-token-for-testing',
                 needsProfileSetup: false,
             });
-            // Navigate to Main screen (Home)
             navigation.replace('Main');
-        }, 500); // Small delay to show loading state
+        }, 800);
     };
 
     const handleResendOTP = () => {
@@ -93,22 +79,32 @@ const OTPVerifyScreen = ({ navigation, route }) => {
                 <View style={styles.header}>
                     <Text style={styles.title}>Verify OTP</Text>
                     <Text style={styles.subtitle}>
-                        We've sent a 6-digit code to{'\n'}
+                        We've sent a 4-digit code to{'\n'}
                         <Text style={styles.phoneNumber}>+91 {phoneNumber}</Text>
                     </Text>
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.otpInput}
-                        placeholder="Enter 6-digit OTP"
-                        keyboardType="number-pad"
-                        maxLength={OTP_LENGTH}
-                        value={otp}
-                        onChangeText={setOtp}
-                        editable={!loading}
-                        autoFocus
-                    />
+                    <View style={styles.otpBoxesContainer}>
+                        {otp.map((digit, index) => (
+                            <TextInput
+                                key={index}
+                                ref={(ref) => (inputRefs.current[index] = ref)}
+                                style={[
+                                    styles.otpBox,
+                                    digit ? styles.otpBoxActive : null
+                                ]}
+                                keyboardType="number-pad"
+                                maxLength={1}
+                                value={digit}
+                                onChangeText={(text) => handleChangeText(text, index)}
+                                onKeyPress={(e) => handleKeyPress(e, index)}
+                                editable={!loading}
+                                autoFocus={index === 0}
+                                selectionColor={COLORS.PRIMARY}
+                            />
+                        ))}
+                    </View>
 
                     <TouchableOpacity
                         style={[styles.button, loading && styles.buttonDisabled]}
@@ -164,24 +160,44 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginBottom: SIZES.PADDING_XXL,
     },
-    otpInput: {
-        borderWidth: 1,
+    otpBoxesContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: SIZES.PADDING_XXL,
+    },
+    otpBox: {
+        width: 65,
+        height: 65,
+        borderWidth: 1.5,
         borderColor: COLORS.BORDER,
         borderRadius: SIZES.RADIUS_MD,
-        paddingHorizontal: SIZES.PADDING_LG,
-        paddingVertical: SIZES.PADDING_LG,
-        fontSize: SIZES.FONT_XXL,
+        fontSize: 24,
+        fontWeight: '700',
         textAlign: 'center',
-        letterSpacing: 10,
-        marginBottom: SIZES.PADDING_LG,
         backgroundColor: COLORS.WHITE,
         color: COLORS.TEXT_PRIMARY,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 3,
+            },
+        }),
+    },
+    otpBoxActive: {
+        borderColor: COLORS.PRIMARY,
+        borderWidth: 2,
     },
     button: {
         backgroundColor: COLORS.PRIMARY,
         paddingVertical: SIZES.PADDING_LG,
         borderRadius: SIZES.RADIUS_MD,
         alignItems: 'center',
+        marginTop: 10,
         marginBottom: SIZES.PADDING_LG,
     },
     buttonDisabled: {
