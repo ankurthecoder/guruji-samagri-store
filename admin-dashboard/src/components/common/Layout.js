@@ -13,7 +13,7 @@ import {
     ListItemIcon,
     ListItemText,
 } from '@mui/material';
-import { Dashboard as DashboardIcon, ShoppingCart, Logout } from '@mui/icons-material';
+import { Dashboard as DashboardIcon, ShoppingCart, Logout, Storefront, Category } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../utils/constants';
 
@@ -30,6 +30,8 @@ const Layout = ({ children }) => {
     const menuItems = [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
         { text: 'Orders', icon: <ShoppingCart />, path: '/orders' },
+        { text: 'Products', icon: <Storefront />, path: '/products' },
+        { text: 'Categories', icon: <Category />, path: '/categories' },
     ];
 
     return (
@@ -37,7 +39,7 @@ const Layout = ({ children }) => {
             <AppBar position="fixed" sx={{ bgcolor: COLORS.PRIMARY, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-                        Guruji Samagri Store - Admin
+                        Guruji Samagri Store Admin
                     </Typography>
                     <Typography variant="body1" sx={{ mr: 2 }}>
                         {user?.name || user?.email}

@@ -1,12 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
+const uploadRoutes = require('./routes/upload');
+const categoriesRoutes = require('./routes/categories');
+const unitRoutes = require('./routes/units');
 
 // Create Express app
 const app = express();
@@ -19,6 +23,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static folder for uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Logging middleware (only in development)
 if (process.env.NODE_ENV === 'development') {
@@ -39,6 +46,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/units', unitRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -15,11 +15,13 @@ import {
     Clipboard,
 } from 'react-native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import Modal from 'react-native-modal';
 
 const ReferAndEarnScreen = ({ navigation }) => {
+    const insets = useSafeAreaInsets();
     const [isModalVisible, setModalVisible] = useState(false);
 
     const toggleModal = () => {
@@ -81,12 +83,28 @@ const ReferAndEarnScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor={COLORS.WHITE} />
+        <View style={styles.container}>
+            <StatusBar
+                barStyle="dark-content"
+                backgroundColor={COLORS.WHITE}
+                translucent={false}
+            />
 
             {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <View
+                style={[
+                    styles.header,
+                    {
+                        paddingTop: Platform.OS === 'ios' ? insets.top : verticalScale(16),
+                        height: Platform.OS === 'ios' ? insets.top + 52 : verticalScale(64),
+                    },
+                ]}
+            >
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={styles.backButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
                     <Ionicons name="arrow-back" size={24} color={COLORS.BLACK} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Refer & earn</Text>
@@ -159,7 +177,12 @@ const ReferAndEarnScreen = ({ navigation }) => {
             </ScrollView>
 
             {/* Bottom Actions - Fixed at bottom */}
-            <View style={styles.bottomActions}>
+            <View
+                style={[
+                    styles.bottomActions,
+                    { paddingBottom: Math.max(insets.bottom, verticalScale(16)) },
+                ]}
+            >
                 <TouchableOpacity style={styles.primaryButton} onPress={handleShare}>
                     <Text style={styles.primaryButtonText}>Share invite link</Text>
                 </TouchableOpacity>
@@ -188,7 +211,7 @@ const ReferAndEarnScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 };
 
@@ -200,21 +223,37 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: scale(16),
         backgroundColor: COLORS.WHITE,
-        elevation: 2,
+        paddingHorizontal: scale(16),
+        borderBottomWidth: 1,
+        borderBottomColor: '#EEEEEE',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+            },
+            android: {
+                elevation: 3,
+            },
+        }),
     },
     backButton: {
-        paddingRight: scale(16),
+        width: scale(32),
+        height: scale(32),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: scale(12),
     },
     headerTitle: {
-        fontSize: moderateScale(18),
-        fontWeight: '600',
+        fontSize: moderateScale(17),
+        fontWeight: '700',
         color: COLORS.BLACK,
     },
     scrollContent: {
         padding: scale(16),
-        paddingBottom: verticalScale(120), // Space for bottom actions
+        paddingBottom: verticalScale(160), // Increased space for bottom actions
     },
     mainCard: {
         backgroundColor: COLORS.WHITE,
@@ -332,7 +371,8 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: COLORS.WHITE,
-        padding: scale(16),
+        paddingHorizontal: scale(16),
+        paddingTop: verticalScale(12),
         elevation: 10,
         borderTopWidth: 1,
         borderTopColor: '#EEEEEE',

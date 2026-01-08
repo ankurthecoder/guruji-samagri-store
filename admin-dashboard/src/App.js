@@ -8,6 +8,9 @@ import Layout from './components/common/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
+import Products from './pages/products/Products';
+import ProductEdit from './pages/products/ProductEdit';
+import Categories from './pages/products/Categories';
 import { COLORS } from './utils/constants';
 
 const theme = createTheme({
@@ -45,6 +48,46 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <Orders />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Products />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/categories"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Categories />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products/add"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductEdit />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductEdit />
                   </Layout>
                 </ProtectedRoute>
               }
