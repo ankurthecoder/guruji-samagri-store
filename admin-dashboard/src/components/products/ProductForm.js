@@ -27,6 +27,7 @@ import {
     DialogContent,
     DialogActions,
     Link,
+    Tooltip,
 } from '@mui/material';
 import {
     CloudUpload as UploadIcon,
@@ -38,7 +39,10 @@ import {
     Add as AddIcon,
     Visibility,
     Edit as EditIcon,
+    InfoOutlined,
 } from '@mui/icons-material';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import productService from '../../services/productService';
 import categoryService from '../../services/categoryService';
 import unitService from '../../services/unitService';
@@ -50,7 +54,10 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     const [units, setUnits] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
+        slug: '',
+        shortDescription: '',
         description: '',
+        sku: '',
         category: 'Puja Items',
         images: [],
         variants: [{
@@ -142,7 +149,10 @@ const ProductForm = ({ product, onSave, onCancel }) => {
 
             setFormData({
                 name: product.name,
+                slug: product.slug || '',
+                shortDescription: product.shortDescription || '',
                 description: product.description,
+                sku: product.sku || '',
                 category: product.category,
                 images: (product.images || []).map(img =>
                     typeof img === 'string' ? { url: img, isMain: false, sortOrder: 0, isActive: true } : img
@@ -357,6 +367,15 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         setFormData(prev => ({ ...prev, variants: newVariants }));
     };
 
+    const handleDescriptionChange = (value) => {
+        setFormData(prev => ({ ...prev, description: value }));
+    };
+
+    const handleGenerateSKU = () => {
+        const randomSKU = Math.floor(100000 + Math.random() * 900000).toString();
+        setFormData(prev => ({ ...prev, sku: randomSKU }));
+    };
+
     const SectionHeader = ({ icon, title }) => (
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
             {React.cloneElement(icon, { sx: { color: COLORS.PRIMARY } })}
@@ -374,8 +393,9 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     <Card elevation={0} sx={{ border: '1px solid #e0e0e0', borderRadius: 2 }}>
                         <CardContent sx={{ p: 3 }}>
                             <SectionHeader icon={<Description />} title="Basic Information" />
-                            <Grid container spacing={2.5} columns={{ xs: 12, lg: 12 }} direction={{ xs: 'column', lg: 'column' }}>
-                                <Grid item xs={12}>
+                            <Grid container spacing={2.5} direction="column">
+                                {/* Product Name */}
+                                <Grid item xs={12} md={8}>
                                     <TextField
                                         fullWidth
                                         label="Product Name"
@@ -394,7 +414,9 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={4}>
+
+                                {/* Category */}
+                                <Grid item xs={12} md={4}>
                                     <TextField
                                         fullWidth
                                         select
@@ -429,17 +451,108 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                                         )}
                                     </TextField>
                                 </Grid>
+
+                                {/* Product Slug */}
                                 <Grid item xs={12}>
                                     <TextField
                                         fullWidth
-                                        multiline
-                                        rows={4}
-                                        label="Description"
-                                        name="description"
-                                        value={formData.description}
+                                        label="Product Permalink/Slug"
+                                        name="slug"
+                                        value={formData.slug}
+                                        onChange={handleChange}
+                                        placeholder="your-product-permalink"
+                                        InputProps={{
+                                            startAdornment: <InputAdornment position="start">https://gurujisamagri.com/products/</InputAdornment>,
+                                        }}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: '12px',
+                                                bgcolor: '#fafafa',
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+
+                                {/* Short Description */}
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Short Description"
+                                        name="shortDescription"
+                                        value={formData.shortDescription}
                                         onChange={handleChange}
                                         required
-                                        placeholder="Enter detailed product description..."
+                                        placeholder="Enter short description"
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: '12px',
+                                                bgcolor: '#fafafa',
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+
+                                {/* Description (Rich Text) */}
+                                <Grid item xs={12}>
+                                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: 'text.secondary' }}>
+                                        Description <span style={{ color: 'red' }}>*</span>
+                                    </Typography>
+                                    <Box sx={{
+                                        '& .quill': {
+                                            bgcolor: '#fafafa',
+                                            borderRadius: '12px',
+                                            border: '1px solid #c4c4c4',
+                                            overflow: 'hidden'
+                                        },
+                                        '& .ql-toolbar': {
+                                            border: 'none',
+                                            borderBottom: '1px solid #ccc',
+                                            bgcolor: '#f5f5f5'
+                                        },
+                                        '& .ql-container': {
+                                            border: 'none',
+                                            minHeight: '150px'
+                                        }
+                                    }}>
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={formData.description}
+                                            onChange={handleDescriptionChange}
+                                        />
+                                    </Box>
+                                </Grid>
+
+                                {/* SKU */}
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mr: 1 }}>
+                                            Product SKU <span style={{ color: 'red' }}>*</span>
+                                        </Typography>
+                                        <Tooltip title="Create a unique product code. This will be used generate barcode">
+                                            <InfoOutlined fontSize="small" sx={{ color: 'text.secondary', cursor: 'pointer' }} />
+                                        </Tooltip>
+                                        <Link
+                                            component="button"
+                                            type="button"
+                                            variant="caption"
+                                            onClick={handleGenerateSKU}
+                                            sx={{
+                                                ml: 'auto',
+                                                color: COLORS.PRIMARY,
+                                                fontWeight: 600,
+                                                textDecoration: 'none',
+                                                '&:hover': { textDecoration: 'underline' }
+                                            }}
+                                        >
+                                            Generate Code
+                                        </Link>
+                                    </Box>
+                                    <TextField
+                                        fullWidth
+                                        name="sku"
+                                        value={formData.sku}
+                                        onChange={handleChange}
+                                        placeholder="163383"
                                         sx={{
                                             '& .MuiOutlinedInput-root': {
                                                 borderRadius: '12px',

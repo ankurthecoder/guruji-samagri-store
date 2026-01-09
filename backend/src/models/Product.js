@@ -14,6 +14,20 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Product category is required'],
     },
+    slug: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
+    },
+    shortDescription: {
+        type: String,
+    },
+    sku: {
+        type: String,
+        unique: true,
+        sparse: true,
+    },
     images: [{
         url: {
             type: String,
