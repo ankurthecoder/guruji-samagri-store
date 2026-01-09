@@ -51,9 +51,11 @@ const profileValidation = [
 const productValidation = [
     body('name').trim().notEmpty().withMessage('Product name is required'),
     body('description').trim().notEmpty().withMessage('Description is required'),
-    body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
     body('category').notEmpty().withMessage('Category is required'),
-    body('stock').isInt({ min: 0 }).withMessage('Stock must be a non-negative integer'),
+    body('variants').isArray({ min: 1 }).withMessage('At least one variant is required'),
+    body('variants.*.unit').notEmpty().withMessage('Variant unit is required'),
+    body('variants.*.price').isFloat({ min: 0 }).withMessage('Variant price must be a positive number'),
+    body('variants.*.stock').isInt({ min: 0 }).withMessage('Variant stock must be a non-negative integer'),
 ];
 
 module.exports = {

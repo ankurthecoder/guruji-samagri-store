@@ -73,7 +73,14 @@ const Products = () => {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+                mb: 4
+            }}>
                 <Typography variant="h4" sx={{ fontWeight: 'bold', color: COLORS.PRIMARY }}>
                     Product Management
                 </Typography>
@@ -142,8 +149,12 @@ const Products = () => {
                                         </Typography>
                                     </TableCell>
                                     <TableCell>{product.category}</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', color: COLORS.PRIMARY }}>₹{product.price}</TableCell>
-                                    <TableCell sx={{ fontWeight: '500' }}>{product.stock} {product.unit}</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: COLORS.PRIMARY }}>
+                                        ₹{product.variants?.[0]?.price || product.price || 0}
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: '500' }}>
+                                        {product.variants?.[0]?.stock || product.stock || 0} {product.variants?.[0]?.unit || product.unit || ''}
+                                    </TableCell>
                                     <TableCell>
                                         <Chip
                                             label={product.isActive ? 'Active' : 'Inactive'}

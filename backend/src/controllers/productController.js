@@ -91,6 +91,7 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
     try {
         const productData = req.body;
+        console.log('📦 Creating product with data:', JSON.stringify(productData, null, 2));
 
         const product = await Product.create(productData);
 
@@ -101,6 +102,15 @@ const createProduct = async (req, res) => {
         });
     } catch (error) {
         console.error('Create Product Error:', error);
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            console.error('Validation Messages:', messages);
+            return res.status(400).json({
+                success: false,
+                message: messages.join(', '),
+                error: error.message
+            });
+        }
         res.status(500).json({
             success: false,
             message: 'Failed to create product',

@@ -7,6 +7,10 @@ const unitSchema = new mongoose.Schema({
         unique: true,
         trim: true,
     },
+    convention: {
+        type: String,
+        trim: true,
+    },
     isActive: {
         type: Boolean,
         default: true,

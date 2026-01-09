@@ -10,6 +10,28 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Product description is required'],
     },
+    category: {
+        type: String,
+        required: [true, 'Product category is required'],
+    },
+    images: [{
+        url: {
+            type: String,
+            required: true
+        },
+        isMain: {
+            type: Boolean,
+            default: false
+        },
+        sortOrder: {
+            type: Number,
+            default: 0
+        },
+        isActive: {
+            type: Boolean,
+            default: true
+        }
+    }],
     // Legacy fields (kept for backward compatibility)
     price: {
         type: Number,
