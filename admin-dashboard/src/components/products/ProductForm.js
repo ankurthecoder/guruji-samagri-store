@@ -168,31 +168,22 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleImageUpload = async (e) => {
+    const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        try {
-            setUploading(true);
-            const response = await productService.uploadImage(file);
-            setFormData(prev => {
-                const newImage = {
-                    url: response.url,
-                    isMain: prev.images.length === 0,
-                    sortOrder: prev.images.length,
-                    isActive: true
-                };
-                return {
-                    ...prev,
-                    images: [...prev.images, newImage]
-                };
-            });
-        } catch (error) {
-            console.error('Upload failed:', error);
-            alert('Image upload failed');
-        } finally {
-            setUploading(false);
-        }
+        const newImage = {
+            file: file,
+            url: URL.createObjectURL(file), // Preview URL
+            isMain: formData.images.length === 0,
+            sortOrder: formData.images.length,
+            isActive: true
+        };
+
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, newImage]
+        }));
     };
 
     const handleRemoveImage = (index) => {
@@ -224,10 +215,42 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         e.preventDefault();
         try {
             setLoading(true);
+
+            const data = new FormData();
+            data.append('name', formData.name);
+            data.append('description', formData.description);
+            data.append('shortDescription', formData.shortDescription || '');
+            data.append('category', formData.category);
+            data.append('sku', formData.sku || '');
+            if (formData.slug) data.append('slug', formData.slug);
+            data.append('isActive', formData.isActive);
+
+            // Variants
+            data.append('variants', JSON.stringify(formData.variants));
+
+            // Images
+            const existingImages = formData.images
+                .filter(img => !img.file)
+                .map(img => ({
+                    url: img.url,
+                    isMain: img.isMain,
+                    sortOrder: img.sortOrder,
+                    isActive: img.isActive
+                }));
+
+            data.append('images', JSON.stringify(existingImages));
+
+            // New Files
+            formData.images.forEach((img) => {
+                if (img.file) {
+                    data.append('images', img.file);
+                }
+            });
+
             if (product) {
-                await productService.updateProduct(product._id, formData);
+                await productService.updateProduct(product._id, data);
             } else {
-                await productService.createProduct(formData);
+                await productService.createProduct(data);
             }
             onSave();
         } catch (error) {

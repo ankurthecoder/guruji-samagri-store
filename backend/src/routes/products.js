@@ -9,6 +9,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/adminMiddleware');
 const { validate, productValidation } = require('../middleware/validation');
+const upload = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
@@ -28,12 +29,12 @@ router.use(protect, admin);
 // @route   POST /api/products
 // @desc    Create new product
 // @access  Private/Admin
-router.post('/', validate(productValidation), createProduct);
+router.post('/', upload.array('images', 10), validate(productValidation), createProduct);
 
 // @route   PUT /api/products/:id
 // @desc    Update product
 // @access  Private/Admin
-router.put('/:id', updateProduct);
+router.put('/:id', upload.array('images', 10), updateProduct);
 
 // @route   DELETE /api/products/:id
 // @desc    Delete product (soft delete)

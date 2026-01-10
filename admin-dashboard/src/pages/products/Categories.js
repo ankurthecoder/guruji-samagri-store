@@ -19,7 +19,6 @@ import {
     Upload as UploadIcon,
 } from '@mui/icons-material';
 import categoryService from '../../services/categoryService';
-import uploadService from '../../services/uploadService';
 import { COLORS } from '../../utils/constants';
 
 // Recursive Category Tree Component
@@ -126,6 +125,7 @@ const Categories = () => {
         name: '',
         description: '',
         image: '',
+        imagePreview: '',
         isActive: true,
         parent: null
     });
@@ -179,6 +179,7 @@ const Categories = () => {
             name: category.name,
             description: category.description || '',
             image: category.image || '',
+            imagePreview: category.image || '',
             isActive: category.isActive,
             parent: category.parent
         });
@@ -191,6 +192,7 @@ const Categories = () => {
             name: '',
             description: '',
             image: '',
+            imagePreview: '',
             isActive: true,
             parent: null
         });
@@ -206,6 +208,7 @@ const Categories = () => {
             name: '',
             description: '',
             image: '',
+            imagePreview: '',
             isActive: true,
             parent: selectedCategory._id
         });
@@ -225,29 +228,26 @@ const Categories = () => {
         }
     };
 
-    const handleImageUpload = async (e) => {
+    const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        try {
-            setUploading(true);
-            const res = await uploadService.uploadImage(file);
-            setFormData(prev => ({ ...prev, image: res.url }));
-        } catch (error) {
-            console.error("Upload failed", error);
-            alert("Image upload failed");
-        } finally {
-            setUploading(false);
-        }
+        const previewUrl = URL.createObjectURL(file);
+        setFormData(prev => ({ ...prev, image: file, imagePreview: previewUrl }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const dataToSend = {
-                ...formData,
-                parent: formData.parent || null
-            };
+            const dataToSend = new FormData();
+            dataToSend.append('name', formData.name);
+            dataToSend.append('description', formData.description);
+            dataToSend.append('isActive', formData.isActive);
+            if (formData.parent) dataToSend.append('parent', formData.parent);
+
+            if (formData.image instanceof File) {
+                dataToSend.append('image', formData.image);
+            }
 
             if (mode === 'edit' && selectedCategory) {
                 await categoryService.updateCategory(selectedCategory._id, dataToSend);
@@ -401,8 +401,8 @@ const Categories = () => {
                                 }}
                                 onClick={() => document.getElementById('cat-image-upload').click()}
                             >
-                                {formData.image ? (
-                                    <img src={formData.image} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                {formData.imagePreview ? (
+                                    <img src={formData.imagePreview} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                 ) : (
                                     <UploadIcon sx={{ fontSize: 48, color: '#b0b0b0' }} />
                                 )}

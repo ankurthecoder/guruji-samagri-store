@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../middleware/uploadMiddleware');
 const {
     getCategories,
     createCategory,
@@ -12,8 +13,8 @@ router.get('/', getCategories);
 
 // Protected routes
 router.use(protect, admin);
-router.post('/', createCategory);
-router.put('/:id', updateCategory);
+router.post('/', upload.single('image'), createCategory);
+router.put('/:id', upload.single('image'), updateCategory);
 router.delete('/:id', deleteCategory);
 
 module.exports = router;

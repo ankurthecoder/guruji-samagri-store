@@ -1,4 +1,16 @@
 const Product = require('../models/Product');
+const fs = require('fs');
+const path = require('path');
+
+const deleteFile = (filename) => {
+    if (!filename) return;
+    const filepath = path.join(__dirname, '../../uploads', filename);
+    if (fs.existsSync(filepath)) {
+        fs.unlink(filepath, (err) => {
+            if (err) console.error('Failed to delete file:', err);
+        });
+    }
+};
 
 /**
  * @desc    Get all products
@@ -90,7 +102,44 @@ const getProductById = async (req, res) => {
  */
 const createProduct = async (req, res) => {
     try {
-        const productData = req.body;
+        const productData = { ...req.body };
+        const protocol = req.protocol;
+        const host = req.get('host');
+
+        // Parse JSON fields
+        if (typeof productData.variants === 'string') {
+            try {
+                productData.variants = JSON.parse(productData.variants);
+            } catch (e) {
+                console.error('Error parsing variants:', e);
+                return res.status(400).json({ success: false, message: 'Invalid variants data' });
+            }
+        }
+
+        // Handle Image Uploads
+        let images = [];
+        // 1. Existing images (should be empty for create, but handling for consistency)
+        if (productData.images && typeof productData.images === 'string') {
+            try {
+                images = JSON.parse(productData.images);
+            } catch (e) {
+                images = [];
+            }
+        }
+
+        // 2. New uploaded files
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map((file, index) => ({
+                url: `${protocol}://${host}/uploads/${file.filename}`,
+                isMain: images.length === 0 && index === 0, // Set first as main if no existing
+                sortOrder: images.length + index,
+                isActive: true
+            }));
+            images = [...images, ...newImages];
+        }
+
+        productData.images = images;
+
         console.log('📦 Creating product with data:', JSON.stringify(productData, null, 2));
 
         const product = await Product.create(productData);
@@ -102,6 +151,12 @@ const createProduct = async (req, res) => {
         });
     } catch (error) {
         console.error('Create Product Error:', error);
+
+        // Cleanup uploaded files
+        if (req.files) {
+            req.files.forEach(file => deleteFile(file.filename));
+        }
+
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(val => val.message);
             console.error('Validation Messages:', messages);
@@ -126,14 +181,7 @@ const createProduct = async (req, res) => {
  */
 const updateProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true,
-                runValidators: true,
-            }
-        );
+        let product = await Product.findById(req.params.id);
 
         if (!product) {
             return res.status(404).json({
@@ -142,6 +190,60 @@ const updateProduct = async (req, res) => {
             });
         }
 
+        const productData = { ...req.body };
+        const protocol = req.protocol;
+        const host = req.get('host');
+
+        // Parse JSON fields
+        if (typeof productData.variants === 'string') {
+            try {
+                productData.variants = JSON.parse(productData.variants);
+            } catch (e) {
+                return res.status(400).json({ success: false, message: 'Invalid variants data' });
+            }
+        }
+
+        // Handle Images
+        let currentImages = []; // Images to keep
+        if (productData.images && typeof productData.images === 'string') {
+            try {
+                currentImages = JSON.parse(productData.images);
+            } catch (e) {
+                currentImages = [];
+            }
+        }
+
+        // Identify deleted images and remove files
+        const keptImageUrls = new Set(currentImages.map(img => img.url));
+        product.images.forEach(img => {
+            if (!keptImageUrls.has(img.url)) {
+                const filename = img.url.split('/uploads/')[1];
+                deleteFile(filename);
+            }
+        });
+
+        // Add new files
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map((file, index) => ({
+                url: `${protocol}://${host}/uploads/${file.filename}`,
+                isMain: currentImages.length === 0 && index === 0,
+                sortOrder: currentImages.length + index,
+                isActive: true
+            }));
+            currentImages = [...currentImages, ...newImages];
+        }
+
+        productData.images = currentImages;
+
+        product = await Product.findByIdAndUpdate(
+            req.params.id,
+            productData,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
+
         res.status(200).json({
             success: true,
             message: 'Product updated successfully',
@@ -149,6 +251,10 @@ const updateProduct = async (req, res) => {
         });
     } catch (error) {
         console.error('Update Product Error:', error);
+        // Cleanup uploaded files
+        if (req.files) {
+            req.files.forEach(file => deleteFile(file.filename));
+        }
         res.status(500).json({
             success: false,
             message: 'Failed to update product',
@@ -176,6 +282,9 @@ const deleteProduct = async (req, res) => {
                 message: 'Product not found',
             });
         }
+
+        // Note: For soft delete, we usually keep images. 
+        // If hard delete is implemented later, we should deleteFile() here.
 
         res.status(200).json({
             success: true,
