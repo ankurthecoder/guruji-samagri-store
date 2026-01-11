@@ -53,6 +53,8 @@ react {
 
     /* Autolinking */
     autolinkLibrariesWithApp()
+
+    hermesEnabled = true
 }
 
 /**
@@ -106,9 +108,6 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    project.ext.react = [
-    enableHermes: true  // <- must be true
-]
    packagingOptions {
     jniLibs {
         useLegacyPackaging = true

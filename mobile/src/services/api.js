@@ -124,3 +124,29 @@ export const getOrderById = async (orderId) => {
         throw error;
     }
 };
+/**
+ * Get app configuration
+ * @returns {Promise<object>} App config data
+ */
+export const getAppConfig = async () => {
+    try {
+        const response = await apiClient.get('/app-config');
+        console.log('App Config:', response.data);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+/**
+ * Get homepage exclusive sections
+ * @returns {Promise<object>} List of exclusive sections
+ */
+export const getExclusiveSections = async () => {
+    try {
+        const response = await apiClient.get('/homepage/sections');
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};

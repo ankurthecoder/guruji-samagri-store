@@ -1,6 +1,10 @@
+import { Platform } from 'react-native';
+
 // API Configuration
 export const API_BASE_URL = __DEV__
-    ? 'http://localhost:5000/api'
+    ? Platform.OS === 'android'
+        ? 'http://10.0.2.2:5001/api'
+        : 'http://localhost:5001/api'
     : 'https://your-production-api.com/api';
 
 export const API_TIMEOUT = 30000; // 30 seconds

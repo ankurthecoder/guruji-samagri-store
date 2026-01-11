@@ -24,7 +24,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CarouselComponent from '../components/CarouselComponent';
 import BottomSheetHandler from '../components/BottomSheetHanlder';
 import ProductAdvertiser from '../components/ProductAdvertiser';
-
+import ExclusiveSectionRenderer from '../components/UISections/ExclusiveSection/ExclusiveSectionRenderer';
 
 const HomeScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
@@ -240,7 +240,9 @@ const HomeScreen = ({ navigation }) => {
                 onScroll={handleScroll}
                 scrollEventThrottle={16}>
 
-                <CarouselComponent data={data} />
+                {/* <CarouselComponent data={data} /> */}
+
+                <ExclusiveSectionRenderer />
 
                 {/* Product Advertiser Section */}
                 {/* <ProductAdvertiser ads={AD_DATA} /> */}

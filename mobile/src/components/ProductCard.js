@@ -7,6 +7,7 @@ import {
     Image,
 } from 'react-native';
 import { COLORS, SIZES } from '../constants/colors';
+import { sanitizeUrl } from '../utils/urlHelper';
 
 const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModal, onProductPress }) => {
     const {
@@ -60,7 +61,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, onOpenVariantModa
             {/* Image with Wishlist Heart */}
             <View style={styles.imageContainer}>
                 {image ? (
-                    <Image source={{ uri: image }} style={styles.image} />
+                    <Image source={{ uri: sanitizeUrl(image) }} style={styles.image} />
                 ) : (
                     <View style={styles.imagePlaceholder}>
                         <Text style={styles.imagePlaceholderText}>📦</Text>

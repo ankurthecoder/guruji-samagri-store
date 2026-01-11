@@ -4,14 +4,19 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/constants/colors';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BootSplash from "react-native-bootsplash";
+import useAppStore from './src/stores/appStore';
 
 const App = () => {
+    const fetchAppData = useAppStore(state => state.fetchAppData);
     const [showSplash, setShowSplash] = useState(true);
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const textOpacity = useRef(new Animated.Value(0)).current;
     const textTranslateY = useRef(new Animated.Value(20)).current;
 
     useEffect(() => {
+        // Fetch app config and sections
+        fetchAppData();
+
         // Hide the native splash screen immediately
         BootSplash.hide({ fade: true });
 

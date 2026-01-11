@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: SIZES.PADDING_XL - 8,
         // paddingTop is now handled dynamically
         paddingBottom: SIZES.PADDING_MD, // Reduced from XL
-        borderBottomLeftRadius: SIZES.RADIUS_XL,
-        borderBottomRightRadius: SIZES.RADIUS_XL,
+        // borderBottomLeftRadius: SIZES.RADIUS_XL,
+        //borderBottomRightRadius: SIZES.RADIUS_XL,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
